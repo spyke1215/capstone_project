@@ -9,71 +9,16 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
 {% endblock %}
 
-{% block body %}
-
-<div class="d-flex justify-content-center">
-    <div id='map' style='width: 1200px; height: 600px;'></div>
-    <script>
-        mapboxgl.accessToken = 'pk.eyJ1Ijoic3B5a2UxMjE1IiwiYSI6ImNsNTdlZnZqNTE2NjYzZGw4dWUxMDY5d3cifQ.0eI6WtJPpjYudfeqAxyV0Q';
-        const map = new mapboxgl.Map({
-        container: 'map', // container ID
-        style: 'mapbox://styles/mapbox/streets-v11', // style URL
-        center: [122.910244, 10.595762], // starting position [lng, lat]
-        zoom: 18, // starting zoom
-        projection: 'globe' // display the map as a 3D globe
-        });
-        map.on('style.load', () => {
-        map.setFog({}); // Set the default atmosphere style
-        });
-
-        map.on('load', () => {
-            // Add a data source containing GeoJSON data.
-            map.addSource('maine', {
-                'type': 'geojson',
-                'data': {
-                    'type': 'Feature',
-                    'geometry': {
-                        'type': 'Polygon',
-                        // These coordinates outline Maine.
-                        'coordinates': [
-                        [
-                            [122.91175594929699, 10.5952480415689], //bottom right starting pos
-                            [122.91150113947036, 10.596513548833773],
-                            [122.90879743973926, 10.596373818325919],
-                            [122.90878402869478, 10.595878161710647],
-                            [122.90910589375991, 10.594939575702067],
-                            [122.91056233319152, 10.594878936626996],
-                            [122.91179480068048, 10.595043487533673],
-                            ]
-                        ]
-                    } 
-                }
-            });
-             
-            // Add a new layer to visualize the polygon.
-            map.addLayer({
-            'id': 'maine',
-            'type': 'fill',
-            'source': 'maine', // reference the data source
-            'layout': {},
-            'paint': {
-            'fill-color': '#0080ff', // blue color fill
-            'fill-opacity': 0.5
-            }
-            });
-            // Add a black outline around the polygon.
-            map.addLayer({
-            'id': 'outline',
-            'type': 'line',
-            'source': 'maine',
-            'layout': {},
-            'paint': {
-            'line-color': '#000',
-            'line-width': 3
-            }
-            });
-            });
-
-    </script>
-</div>
+{% block masthead %}
+<header class="masthead">
+    <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
+        <div class="d-flex justify-content-center">
+            <div id='map'>
+            <iframe width='1400px' height='750px' 
+                src="https://api.mapbox.com/styles/v1/spyke1215/cl57t6mwz00bh15qvn2uy8zb1.html?title=false&access_token=pk.eyJ1Ijoic3B5a2UxMjE1IiwiYSI6ImNsNTdlZnZqNTE2NjYzZGw4dWUxMDY5d3cifQ.0eI6WtJPpjYudfeqAxyV0Q&zoomwheel=false#18.16/10.595697/122.91022" 
+                title="Basic-copy" style="border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</header>
 {% endblock %}
