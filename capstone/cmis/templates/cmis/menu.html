@@ -5,20 +5,92 @@
 {% endblock%}
 
 {% block head %}
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+<script src="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.js"></script>
+<link href="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block masthead %}
 <header class="masthead">
     <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
         <div class="d-flex justify-content-center">
-            <div id='map'>
-            <iframe width='1400px' height='750px' 
-                src="https://api.mapbox.com/styles/v1/spyke1215/cl57t6mwz00bh15qvn2uy8zb1.html?title=false&access_token=pk.eyJ1Ijoic3B5a2UxMjE1IiwiYSI6ImNsNTdlZnZqNTE2NjYzZGw4dWUxMDY5d3cifQ.0eI6WtJPpjYudfeqAxyV0Q&zoomwheel=false#18.16/10.595697/122.91022" 
-                title="Basic-copy" style="border:none;"></iframe>
-            </div>
+            <div id='map' style='width: 1600px; height: 750px;'></div>
+            <script>
+                const urlParams = new URLSearchParams(window.location.search);
+                const key = urlParams.get('key') || 'pYak4IN292AL67yzijvU';
+                const map = new maplibregl.Map({
+                    container: 'map', // container id
+                    style: `https://api.maptiler.com/maps/streets/style.json?key=${key}`, // style URL
+                    center: [122.91021123885099, 10.595742481798105], // starting position [lng, lat]
+                    zoom: 18, // starting zoom
+                });
+
+                map.on('error', function(err) {
+                throw new Error("To load the map, you must replace YOUR_MAPTILER_API_KEY_HERE first");
+                });
+                
+                map.setMaxZoom(18.75);
+                map.setMinZoom(16);
+                map.setBearing(180);
+
+                var hoveredPolyId = null;
+
+                map.on('load', function () {
+                    // sources
+                    // GeoJSON polygon with 3 features
+                    map.addSource('sections', {
+                    'type': 'geojson',
+                    'data': 'https://api.maptiler.com/data/633c4e12-bfaa-4767-8bb8-c8143011a772/features.json?key=pYak4IN292AL67yzijvU'
+                    });
+                
+                    // map layers
+                    // polygons
+                    map.addLayer({
+                        'id': 'polygons',
+                        'type': 'fill',
+                        'source': 'sections', // reference the data source
+                        'layout': {},
+                        'paint': {
+                            'fill-color': '#FFAA01', // orange color fill
+                            'fill-opacity': [
+                                'case',
+                                ['boolean', ['feature-state', 'hover'], false],
+                                1,
+                                0.5
+                            ]
+                        }
+                        });
+                
+                    // outline of polygons
+                    map.addLayer({
+                        'id': 'outline',
+                        'type': 'line',
+                        'source': 'sections',
+                        'layout': {},
+                        'paint': {
+                            'line-color': '#F3A040', // orange outline
+                            'line-width': 3
+                        }
+                    });
+
+                    map.on('click', 'polygons', function (e) {
+                        new maplibregl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML('<h3>' + "Sections" + '</h3><p>' + e.features[0].properties.name+ '</p><h3>')
+                            .addTo(map);
+                    });
+
+                });
+
+            // Define bounds that conform to the `LngLatBoundsLike` object.
+            var bounds = [
+                [122.90782362654943, 10.594244730858899], // [west, south]
+                [122.912640077032, 10.597304816176521]  // [east, north]
+            ];
+            // Set the map's max bounds.
+            map.setMaxBounds(bounds);
+            </script>
         </div>
     </div>
 </header>
 {% endblock %}
+

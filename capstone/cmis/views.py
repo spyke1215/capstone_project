@@ -6,3 +6,4 @@ def index (request):
 
 def menu (request):
     return render(request,'cmis/menu.html')
+
