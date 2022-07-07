@@ -70,13 +70,33 @@
                             'line-color': '#F3A040', // orange outline
                             'line-width': 3
                         }
+                    }); 
+                    
+                    var popup = new maplibregl.Popup({
+                        closeButton: false,
+                        closeOnClick: false
+                        });                        
+                        
+                    map.on('click', 'polygons', function(e) {
+                        var id = e.features[0].properties.id;
+                        
+                        window.location=id;
+                        
+                        });
+
+                    map.on('mouseenter', 'polygons', function (e) {
+                        
+                        var id = e.features[0].properties.id;
+                        
+                        popup
+                        .setLngLat(e.lngLat)
+                        .setHTML('<h3>' + "SECTION ID" + '</h3><p>' + id + '</p>')
+                        .addTo(map);
                     });
 
-                    map.on('click', 'polygons', function (e) {
-                        new maplibregl.Popup()
-                            .setLngLat(e.lngLat)
-                            .setHTML('<h3>' + "Sections" + '</h3><p>' + e.features[0].properties.name+ '</p><h3>')
-                            .addTo(map);
+                    map.on('mouseleave', 'polygons', function () {
+                        map.getCanvas().style.cursor = '';
+                        popup.remove();
                     });
 
                 });
