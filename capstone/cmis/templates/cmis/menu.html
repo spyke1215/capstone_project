@@ -17,97 +17,102 @@
             <script>
                 const urlParams = new URLSearchParams(window.location.search);
                 const key = urlParams.get('key') || 'pYak4IN292AL67yzijvU';
-                const map = new maplibregl.Map({
-                    container: 'map', // container id
-                    style: `https://api.maptiler.com/maps/streets/style.json?key=${key}`, // style URL
-                    center: [122.91021123885099, 10.595742481798105], // starting position [lng, lat]
-                    zoom: 18, // starting zoom
-                });
 
-                map.on('error', function(err) {
-                throw new Error("To load the map, you must replace YOUR_MAPTILER_API_KEY_HERE first");
-                });
-                
-                map.setMaxZoom(18.75);
-                map.setMinZoom(16);
-                map.setBearing(180);
+                if (!maplibregl.supported()) {
+                    alert('Your browser does not support MapLibre GL');
+                } else {
+                    const map = new maplibregl.Map({
+                        container: 'map', // container id
+                        style: `https://api.maptiler.com/maps/streets/style.json?key=${key}`, // style URL
+                        center: [122.91021123885099, 10.595742481798105], // starting position [lng, lat]
+                        zoom: 18, // starting zoom
+                    });
 
-                var hoveredPolyId = null;
-
-                map.on('load', function () {
-                    // sources
-                    // GeoJSON polygon with 3 features
-                    map.addSource('sections', {
-                    'type': 'geojson',
-                    'data': 'https://api.maptiler.com/data/633c4e12-bfaa-4767-8bb8-c8143011a772/features.json?key=pYak4IN292AL67yzijvU'
+                    map.on('error', function(err) {
+                        throw new Error("To load the map, you must replace YOUR_MAPTILER_API_KEY_HERE first");
                     });
                 
-                    // map layers
-                    // polygons
-                    map.addLayer({
-                        'id': 'polygons',
-                        'type': 'fill',
-                        'source': 'sections', // reference the data source
-                        'layout': {},
-                        'paint': {
-                            'fill-color': '#FFAA01', // orange color fill
-                            'fill-opacity': [
-                                'case',
-                                ['boolean', ['feature-state', 'hover'], false],
-                                1,
-                                0.5
-                            ]
-                        }
+                    map.setMaxZoom(18.75); //max zoom
+                    map.setMinZoom(16);  //min zoom
+                    map.setBearing(180); //rotation
+
+                    var hoveredPolyId = null;
+
+                    map.on('load', function () {
+                        // sources
+                        // GeoJSON polygon with 3 features
+                        map.addSource('sections', {
+                        'type': 'geojson',
+                        'data': 'https://api.maptiler.com/data/633c4e12-bfaa-4767-8bb8-c8143011a772/features.json?key=pYak4IN292AL67yzijvU'
                         });
-                
-                    // outline of polygons
-                    map.addLayer({
-                        'id': 'outline',
-                        'type': 'line',
-                        'source': 'sections',
-                        'layout': {},
-                        'paint': {
-                            'line-color': '#F3A040', // orange outline
-                            'line-width': 3
-                        }
-                    }); 
                     
-                    var popup = new maplibregl.Popup({
-                        closeButton: false,
-                        closeOnClick: false
-                        });                        
+                        // map layers
+                        // polygons
+                        map.addLayer({
+                            'id': 'polygons',
+                            'type': 'fill',
+                            'source': 'sections', // reference the data source
+                            'layout': {},
+                            'paint': {
+                                'fill-color': '#FFAA01', // orange color fill
+                                'fill-opacity': [
+                                    'case',
+                                    ['boolean', ['feature-state', 'hover'], false],
+                                    1,
+                                    0.5
+                                ]
+                            }
+                            });
+                    
+                        // outline of polygons
+                        map.addLayer({
+                            'id': 'outline',
+                            'type': 'line',
+                            'source': 'sections',
+                            'layout': {},
+                            'paint': {
+                                'line-color': '#F3A040', // orange outline
+                                'line-width': 3
+                            }
+                        }); 
                         
-                    map.on('click', 'polygons', function(e) {
-                        var id = e.features[0].properties.id;
-                        
-                        window.location=id;
-                        
+                        var popup = new maplibregl.Popup({
+                            closeButton: false,
+                            closeOnClick: false
+                            });                        
+                            
+                        map.on('click', 'polygons', function(e) {
+                            var id = e.features[0].properties.id;
+                            
+                            window.location=id;
+                            
+                            });
+
+                        map.on('mouseenter', 'polygons', function (e) {
+                            
+                            var id = e.features[0].properties.id;
+                            
+                            popup
+                            .setLngLat(e.lngLat)
+                            .setHTML('<h3>' + "SECTION ID" + '</h3><p>' + id + '</p>')
+                            .addTo(map);
                         });
 
-                    map.on('mouseenter', 'polygons', function (e) {
-                        
-                        var id = e.features[0].properties.id;
-                        
-                        popup
-                        .setLngLat(e.lngLat)
-                        .setHTML('<h3>' + "SECTION ID" + '</h3><p>' + id + '</p>')
-                        .addTo(map);
+                        map.on('mouseleave', 'polygons', function () {
+                            map.getCanvas().style.cursor = '';
+                            popup.remove();
+                        });
+
                     });
-
-                    map.on('mouseleave', 'polygons', function () {
-                        map.getCanvas().style.cursor = '';
-                        popup.remove();
-                    });
-
-                });
-
-            // Define bounds that conform to the `LngLatBoundsLike` object.
-            var bounds = [
-                [122.90782362654943, 10.594244730858899], // [west, south]
-                [122.912640077032, 10.597304816176521]  // [east, north]
-            ];
-            // Set the map's max bounds.
-            map.setMaxBounds(bounds);
+                
+                    // Define bounds that conform to the `LngLatBoundsLike` object.
+                    var bounds = [
+                        [122.90782362654943, 10.594244730858899], // [west, south]
+                        [122.912640077032, 10.597304816176521]  // [east, north]
+                    ];
+                    // Set the map's max bounds.
+                    map.setMaxBounds(bounds);
+                }
             </script>
         </div>
     </div>

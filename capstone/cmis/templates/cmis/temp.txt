@@ -57,3 +57,11 @@
                 .setText(feature.properties.ID)
                 .addTo(map);
         });
+
+        // Define bounds that conform to the `LngLatBoundsLike` object.
+                    var bounds = [
+                        [122.90782362654943, 10.594244730858899], // [west, south]
+                        [122.912640077032, 10.597304816176521]  // [east, north]
+                    ];
+                    // Set the map's max bounds.
+                    map.setMaxBounds(bounds);
