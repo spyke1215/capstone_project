@@ -1,0 +1,67 @@
+        <!-- Contact-->
+        {% block contact %}
+        <section class="contact-section bg-black">
+            <div class="container px-4 px-lg-5">
+                <div class="social d-flex justify-content-center">
+                    <a class="mx-2" href="https://discord.gg/A6tARJBcjM"><i class="fab fa-discord"></i></a>
+                    <a class="mx-2" href="https://www.facebook.com/edrianl.cortez"><i class="fab fa-facebook-f"></i></a>
+                    <a class="mx-2" href="https://github.com/spyke1215/capstone_project"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </section>
+        {% endblock %}
+        <!-- Footer-->
+        {% block footer%}
+        <footer class="footer bg-black small text-center text-white-50"><div class="container px-4 px-lg-5">Copyright &copy; METAFOUR 2022</div></footer>
+        {% endblock %}
+
+        // When the user moves their mouse over the state-fill layer, we'll update the
+        // feature state for the feature under the mouse.
+        map.on('mousemove', 'polygons', function (e) {
+            if (e.features.length > 0) {
+                if (hoveredPolyId) {
+                    map.setFeatureState(
+                        { source: 'sections', id: hoveredPolyId },
+                        { hover: false }
+                    );
+                }
+                hoveredPolyId = e.features[0].id;
+                map.setFeatureState(
+                    { source: 'sections', id: hoveredPolyId },
+                    { hover: true }
+                );
+            }
+        });
+                
+        // When the mouse leaves the state-fill layer, update the feature state of the
+        // previously hovered feature.
+        map.on('mouseleave', 'polygons', function () {
+        if (hoveredPolyId) {
+            map.setFeatureState(
+                { source: 'sections', id: hoveredPolyId },
+                { hover: false }
+            );
+        }
+        hoveredPolyId = null;
+        });
+
+        map.on('mouseenter', 'polygons', function(e) {
+            // Change the cursor style as a UI indicator.
+            map.getCanvas().style.cursor = 'pointer';
+    
+            // Single out the first found feature.
+            var feature = e.features[0];
+    
+            // Display a popup with the name of the county
+            popup.setLngLat(e.lngLat)
+                .setText(feature.properties.ID)
+                .addTo(map);
+        });
+
+        // Define bounds that conform to the `LngLatBoundsLike` object.
+                    var bounds = [
+                        [122.90782362654943, 10.594244730858899], // [west, south]
+                        [122.912640077032, 10.597304816176521]  // [east, north]
+                    ];
+                    // Set the map's max bounds.
+                    map.setMaxBounds(bounds);

@@ -1,0 +1,21 @@
+{% extends "cmis/layout.html" %}
+
+{% block title %}
+    Information
+{% endblock %}
+
+{% block masthead %}  
+    <header class="masthead">
+        <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
+            <div class="d-flex justify-content-center">
+                {{ deceased.id }}
+                {{ deceased.first_name }}
+                {{ deceased.middle_name }}
+                {{ deceased.last_name }}
+                <a href=https://maps.google.com/maps?q={{ deceased.lot_id.latitude }},{{ deceased.lot_id.longitude }}>
+                    <button>GPS</button>
+                 </a>
+            </div>
+        </div>
+    </header>
+{% endblock %}
