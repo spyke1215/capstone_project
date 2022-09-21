@@ -10,114 +10,112 @@
 {% endblock %}
 
 {% block masthead %}
-<header class="masthead">
-    <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
-        <div class="d-flex justify-content-center">
-            <div id='map' style='width: 1600px; height: 750px;'></div>
-            <script>
-                const urlParams = new URLSearchParams(window.location.search);
-                const key = urlParams.get('key') || 'pYak4IN292AL67yzijvU';
 
-                if (!maplibregl.supported()) {
-                    alert('Your browser does not support MapLibre GL');
-                } else {
-                    const map = new maplibregl.Map({
-                        container: 'map', // container id
-                        style: `https://api.maptiler.com/maps/streets/style.json?key=${key}`, // style URL
-                        center: [122.91021123885099, 10.595742481798105], // starting position [lng, lat]
-                        zoom: 18, // starting zoom
-                    });
+<div class="d-flex justify-content-center">
+<div id='map' style='width: 1600px; height: 750px;'></div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const key = urlParams.get('key') || 'pYak4IN292AL67yzijvU';
 
-                    map.on('error', function(err) {
-                        throw new Error("To load the map, you must replace YOUR_MAPTILER_API_KEY_HERE first");
+        if (!maplibregl.supported()) {
+            alert('Your browser does not support MapLibre GL');
+        } else {
+            const map = new maplibregl.Map({
+                container: 'map', // container id
+                style: `https://api.maptiler.com/maps/streets/style.json?key=${key}`, // style URL
+                center: [122.91021123885099, 10.595742481798105], // starting position [lng, lat]
+                zoom: 18, // starting zoom
+            });
+
+            map.on('error', function(err) {
+                throw new Error("To load the map, you must replace YOUR_MAPTILER_API_KEY_HERE first");
+            });
+        
+            map.setMaxZoom(24); //max zoom
+            map.setMinZoom(16);  //min zoom
+            map.setBearing(180); //rotation
+
+            var hoveredPolyId = null;
+            
+            map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
+
+            map.on('load', function () {
+                // sources
+                // GeoJSON polygon with 3 features
+                map.addSource('sections', {
+                'type': 'geojson',
+                'data': 'https://api.maptiler.com/data/633c4e12-bfaa-4767-8bb8-c8143011a772/features.json?key=pYak4IN292AL67yzijvU'
+                });
+            
+                // map layers
+                // polygons
+                map.addLayer({
+                    'id': 'polygons',
+                    'type': 'fill',
+                    'source': 'sections', // reference the data source
+                    'layout': {},
+                    'paint': {
+                        'fill-color': '#FFAA01', // orange color fill
+                        'fill-opacity': [
+                            'case',
+                            ['boolean', ['feature-state', 'hover'], false],
+                            1,
+                            0.5
+                        ]
+                    }
                     });
+            
+                // outline of polygons
+                map.addLayer({
+                    'id': 'outline',
+                    'type': 'line',
+                    'source': 'sections',
+                    'layout': {},
+                    'paint': {
+                        'line-color': '#F3A040', // orange outline
+                        'line-width': 3
+                    }
+                }); 
                 
-                    map.setMaxZoom(24); //max zoom
-                    map.setMinZoom(16);  //min zoom
-                    map.setBearing(180); //rotation
-
-                    var hoveredPolyId = null;
+                var popup = new maplibregl.Popup({
+                    closeButton: false,
+                    closeOnClick: false
+                    });                        
                     
-                    map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
-
-                    map.on('load', function () {
-                        // sources
-                        // GeoJSON polygon with 3 features
-                        map.addSource('sections', {
-                        'type': 'geojson',
-                        'data': 'https://api.maptiler.com/data/633c4e12-bfaa-4767-8bb8-c8143011a772/features.json?key=pYak4IN292AL67yzijvU'
-                        });
+                map.on('click', 'polygons', function(e) {
+                    var id = e.features[0].properties.id;
                     
-                        // map layers
-                        // polygons
-                        map.addLayer({
-                            'id': 'polygons',
-                            'type': 'fill',
-                            'source': 'sections', // reference the data source
-                            'layout': {},
-                            'paint': {
-                                'fill-color': '#FFAA01', // orange color fill
-                                'fill-opacity': [
-                                    'case',
-                                    ['boolean', ['feature-state', 'hover'], false],
-                                    1,
-                                    0.5
-                                ]
-                            }
-                            });
+                    window.location=id;
                     
-                        // outline of polygons
-                        map.addLayer({
-                            'id': 'outline',
-                            'type': 'line',
-                            'source': 'sections',
-                            'layout': {},
-                            'paint': {
-                                'line-color': '#F3A040', // orange outline
-                                'line-width': 3
-                            }
-                        }); 
-                        
-                        var popup = new maplibregl.Popup({
-                            closeButton: false,
-                            closeOnClick: false
-                            });                        
-                            
-                        map.on('click', 'polygons', function(e) {
-                            var id = e.features[0].properties.id;
-                            
-                            window.location=id;
-                            
-                            });
-
-                        map.on('mouseenter', 'polygons', function (e) {
-                            map.getCanvas().style.cursor = 'pointer';
-                            var id = e.features[0].properties.id;
-                            
-                            popup
-                            .setLngLat(e.lngLat)
-                            .setHTML('<h3>' + "SECTION ID" + '</h3><p>' + id + '</p>')
-                            .addTo(map);
-                        });
-
-                        map.on('mouseleave', 'polygons', function () {
-                            map.getCanvas().style.cursor = '';
-                            popup.remove();
-                        });
-
                     });
-                
-                    // Define bounds that conform to the `LngLatBoundsLike` object.
-                    var bounds = [
-                        [122.90782362654943, 10.594244730858899], // [west, south]
-                        [122.912640077032, 10.597304816176521]  // [east, north]
-                    ];
-                    // Set the map's max bounds.
-                    map.setMaxBounds(bounds);
-                }
-            </script>
-        </div>
-    </div>
-</header>
+
+                map.on('mouseenter', 'polygons', function (e) {
+                    map.getCanvas().style.cursor = 'pointer';
+                    var id = e.features[0].properties.id;
+                    
+                    popup
+                    .setLngLat(e.lngLat)
+                    .setHTML('<h3>' + "SECTION ID" + '</h3><p>' + id + '</p>')
+                    .addTo(map);
+                });
+
+                map.on('mouseleave', 'polygons', function () {
+                    map.getCanvas().style.cursor = '';
+                    popup.remove();
+                });
+
+            });
+        
+            // Define bounds that conform to the `LngLatBoundsLike` object.
+            var bounds = [
+                [122.90782362654943, 10.594244730858899], // [west, south]
+                [122.912640077032, 10.597304816176521]  // [east, north]
+            ];
+            // Set the map's max bounds.
+            map.setMaxBounds(bounds);
+        }
+    </script>
+</div>
+
 {% endblock %}
 
