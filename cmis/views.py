@@ -1,6 +1,5 @@
 from django.shortcuts import render
-
-from cmis.models import Deceased, Category, Lot, Cemetery
+from cmis.models import *
 
 # Create your views here.
 def index(request):
@@ -10,7 +9,11 @@ def cemetery(request):
     return render(request,'cmis/cemetery.html')
 
 def search(request):
-    return render(request,'cmis/search.html')
+
+    return render(request,'cmis/search.html',{
+        "deceased": Deceased.objects.all()
+    })
+
 
 def deceased(request):
     return render(request,'cmis/deceased.html', {
