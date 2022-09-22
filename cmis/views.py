@@ -14,7 +14,6 @@ def search(request):
         "deceased": Deceased.objects.all()
     })
 
-
 def deceased(request):
     return render(request,'cmis/deceased.html', {
         "deceased": Deceased.objects.get(pk=1)
