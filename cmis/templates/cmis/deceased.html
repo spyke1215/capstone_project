@@ -10,8 +10,11 @@
     {{ deceased.first_name }}
     {{ deceased.middle_name }}
     {{ deceased.last_name }}
-    <a href=https://maps.google.com/maps?q={{ deceased.lot_id.latitude }},{{ deceased.lot_id.longitude }}>
+    {{ deceased.description }}
+    {{ deceased.image }}
+    {{ deceased.lot.sections }}
+    <a href=https://maps.google.com/maps?q={{ deceased.lot.latitude }},{{ deceased.lot.longitude }}>
         <button>GPS</button>
-        </a>
+    </a>
 </div>
 {% endblock %}
