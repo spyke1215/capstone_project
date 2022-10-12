@@ -6,7 +6,8 @@ class Category(models.Model):
     max_layers = models.IntegerField() #MAX LAYERS
     price = models.IntegerField() #PRICE
 
-    class meta:
+    class Meta:
+        verbose_name = "category"
         verbose_name_plural = "categories"
 
     def __str__(self):
@@ -18,7 +19,8 @@ class Cemetery(models.Model):
     latitude = models.CharField(max_length=64)
     address = models.CharField(max_length=64) #CEMETERY ADDRESS
 
-    class meta:
+    class Meta:
+        verbose_name = "cemetery"
         verbose_name_plural = "cemeteries"
 
     def __str__(self):
@@ -27,7 +29,8 @@ class Cemetery(models.Model):
 class Status(models.Model):
     name = models.CharField(max_length=32)
 
-    class meta:
+    class Meta:
+        verbose_name = "status"
         verbose_name_plural = "status"
     
     def __str__(self):
@@ -43,7 +46,8 @@ class Lot(models.Model):
     latitude = models.CharField(max_length=64) #LATITUDE
     sections = models.CharField(max_length=10) #CEMETERY SECTION
 
-    class meta:
+    class Meta:
+        verbose_name = "lot"
         verbose_name_plural = "lots"
     
     def __str__(self):
@@ -59,7 +63,8 @@ class Deceased(models.Model):
     description = models.CharField(max_length=128, null=True, blank=True) #DESCRIPTION
     image = models.ImageField(null=True, blank=True) #IMAGE
 
-    class meta:
+    class Meta:
+            verbose_name = "deceased"
             verbose_name_plural = "deceased"
 
     def __str__(self):
