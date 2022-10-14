@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-9lvvv2($mv4h+&3@ql9atv_#3%6vt#35!24@h=gur&%w&n4ks8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -120,7 +120,7 @@ USE_TZ = True
 
 STATIC_ROOT = "app-root/repo/wsgi/static"
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 STATICFILES_DIRS = (
     ('assets', 'app-root/repo/wsgi/openshift/static'),
