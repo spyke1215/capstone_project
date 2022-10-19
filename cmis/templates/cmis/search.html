@@ -5,44 +5,117 @@
 {% endblock %}
 
 {% block masthead %}
+<div class="container text-black">
+  <div class="card">
+      <div class="card-body" style="font-weight: bold;">
+        <form method="POST">{% csrf_token %}
+            <h4 class="card-title">Search Information</h4>
+            <div class="row">
+                <div class="col-md-2">
+                    <p>First Name:</p>
+                </div>
+                <div class="col-md-2"><input name="first" type="text" style="margin-left: -18px;"></div>
+                <div class="col-md-2">
+                    <p>Middle Name:</p>
+                </div>
+                <div class="col-md-2"><input name="middle" type="text" style="margin-left: -18px;"></div>
+                <div class="col-md-2">
+                    <p>Last Name:</p>
+                </div>
+                <div class="col-md-2"><input name="last" type="text" style="margin-left: -18px;"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <p>Year Born:&nbsp;</p>
+                </div>
+                <div class="col-md-2"><input name="birth" type="text" style="margin-left: -18px;"></div>
+                <div class="col-md-2">
+                    <p>Year Died:</p>
+                </div>
+                <div class="col-md-2"><input name="death" type="text" style="margin-left: -18px;"></div>
+                <div class="col-md-2">
+                    <p>Section:</p>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" style="margin-left: -18px;" name="section">
+                        <option selected></option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                      </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <p>Cemetery:</p>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" style="margin-left: -18px;" name="cemetery">
+                        <option selected></option>
+                        <option value="Valley of Peace">Valley of Peace</option>
+                        <option value="Rose Lawn">Rose Lawn</option>
+                        <option value="Rolling Hills">Rolling Hills</option>
+                        <option value="Palm Haven">Palm Haven</option>
+                        <option value="Bacolod Memorial Park">Bacolod Memorial Park</option>
+                        <option value="Sacred Heart Cemetery">Sacred Heart Cemetery</option>
+                        <option value="Greenhills">Greenhills</option>
+                        <option value="Santurio de Bacolod">Santurio de Bacolod</option>
+                      </select>
+                </div>
+                <div class="col"><button class="btn btn-primary" type="submit" style="background: rgb(71,76,81);">Search&nbsp;<i class="fas fa-search"></i></button></div>
+            </div>
 
-<div class="d-flex justify-content-center" style="background-color:white">
-    <table class="table table-sm table-bordered table-hover">
-        <thead class="thead-dark">
-          <tr>
-            <th scope"col">#
-            </th>
-            <th scope"col">First
-            </th>
-            <th scope"col">Middle
-            </th>
-            <th scope"col">Last
-            </th>
-            <th scope"col">Birth
-            </th>
-            <th scope"col">Death
-            </th>
-            <th scope"col">Section
-            </th>
-            <th scope"col">Cemetery
-            </th>
-          </tr>
+        </form>
+      </div>
+  </div>
+</div>
+<div class="container">
+    <table class="table table-hover" style="background-color: white;">
+        <thead>
+        <tr class="table-secondary">
+            <th scope="col">#</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Middle Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Birth Date</th>
+            <th scope="col">Death Date</th>
+            <th scope="col">Section</th>
+            <th scope="col">Cemetery</th>
+        </tr>
         </thead>
         <tbody>
-        {% for deceased in deceased %}
-          <tr scope="row">
-            <td>{{ deceased.id }}</td>
-            <td>{{ deceased.first_name }}</td>
-            <td>{{ deceased.middle_name }}</td>
-            <td>{{ deceased.last_name }}</td>
-            <td>{{ deceased.birth_date }}</td>
-            <td>{{ deceased.death_date }}</td>
-            <td>{{ deceased.lot.status }}</td>
-            <td>{{ deceased.lot.cemetery }}</td>
-          </tr>
-
-        {% endfor %}
+            <form method="POST"> {% csrf_token %}
+                {% for deceased in deceased %}
+                    <tr id="table" style="cursor: pointer;">
+                        <input type="hidden" name="pk" value="{{ deceased.id }}" />
+                        <th scope="row">{{ deceased.id }}</th>
+                        <td>{{ deceased.first_name }}</td>
+                        <td>{{ deceased.middle_name }}</td>
+                        <td>{{ deceased.last_name }}</td>
+                        <td>{{ deceased.birth_date }}</td>
+                        <td>{{ deceased.death_date }}</td>
+                        <td>{{ deceased.lot.sections }}</td>
+                        <td>{{ deceased.lot.cemetery }}</td>
+                    </tr>   
+                {% endfor %}
+            </form>
         </tbody>
-      </table>
+    </table>
 </div>
+
+<script>
+    const row = document.getElementById("table"); //only works on first row
+    row.addEventListener("click", () => {
+        window.location.href = "deceased";
+    });
+
+    var form = document.getElementById("form-id");
+
+    document.getElementById("your-id").addEventListener("click", function () {
+    form.submit();
+});
+</script>
 {% endblock %}
