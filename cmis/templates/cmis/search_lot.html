@@ -1,0 +1,105 @@
+{% extends "cmis/layout.html" %}
+
+{% block title %}
+    Search - Lot
+{% endblock %}
+
+{% block masthead %}
+<div class="container text-black">
+  <div class="card">
+      <div class="card-body" style="font-weight: bold;">
+        <form method="POST">{% csrf_token %}
+            <h4 class="card-title">Search Lot Information</h4>   
+            <div class="row">
+                <div class="col-md-2">
+                    <p>Category:</p>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" style="margin-left: -18px;" name="category">
+                        <option selected></option>
+                        {% for category in category %}
+                            <option value="{{ category.name }}">{{ category.name}}</option>
+                        {% endfor %}
+                      </select>
+                </div>
+                <div class="col-md-2">
+                    <p>Cemetery:</p>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" style="margin-left: -18px;" name="cemetery">
+                        <option selected></option>
+                        {% for cemetery in cemetery %}
+                            <option value="{{ cemetery.name }}">{{ cemetery.name }}</option>
+                        {% endfor %}
+                        </select>
+                </div>
+                <div class="col-md-2">
+                    <p>Status:</p>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" style="margin-left: -18px;" name="status">
+                        <option selected></option>
+                        {% for status in status %}
+                            <option value="{{ status.name }}">{{ status.name }}</option>
+                        {% endfor %}
+                        </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <p>Layer:</p>
+                </div>
+                <div class="col-md-2"><input name="layer" type="number" style="margin-left: -18px;"></div>
+
+                <div class="col-md-2">
+                    <p>Section:</p>
+                </div>
+                <div class="col-md-2"><input name="section" type="number" style="margin-left: -18px;"></div>
+
+                <div class="col"><button class="btn btn-primary" type="submit" style="background: rgb(71,76,81);">Search&nbsp;<i class="fas fa-search"></i></button></div>
+            </div>
+        </form>
+      </div>
+  </div>
+</div>
+<div class="container">
+    <table class="table table-hover" style="background-color: white;">
+        <thead>
+        <tr class="table-secondary">
+            <th scope="col">#</th>
+            <th scope="col">Category</th>
+            <th scope="col">Cemetery</th>
+            <th scope="col">Status</th>
+            <th scope="col">Layers</th>
+            <th scope="col">Section</th>
+        </tr>
+        </thead>
+        <tbody> 
+            {% for lot in lot %}
+            <form method="POST" id="form-id" action="{% url 'deceased' %}"> {% csrf_token %}
+                <tr id="table" style="cursor: pointer;">
+                    <input type="hidden" name="pk" value="{{ lot.id }}"/>
+                    <th scope="row">{{ lot.id }}</th>
+                    <td>{{ lot.category }}</td>
+                    <td>{{ lot.cemetery }}</td>
+                    <td>{{ lot.status }}</td>
+                    <td>{{ lot.occupied_layer }}</td>
+                    <td>{{ lot.sections }}</td>
+                </tr>
+            </form>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    window.addEventListener("DOMContentLoaded", function () {
+        
+        var form = document.getElementById("form-id");
+
+        document.getElementById("table").addEventListener("click", function () {
+        form.submit();
+        });
+    });
+</script>
+{% endblock %}
