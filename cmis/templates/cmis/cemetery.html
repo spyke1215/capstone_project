@@ -44,7 +44,7 @@
                 // GeoJSON polygon with 3 features
                 map.addSource('sections', {
                 'type': 'geojson',
-                'data': 'https://api.maptiler.com/data/633c4e12-bfaa-4767-8bb8-c8143011a772/features.json?key=pYak4IN292AL67yzijvU'
+                'data': 'static/cmis/sections.json'
                 });
             
                 // map layers
@@ -80,7 +80,7 @@
                 var popup = new maplibregl.Popup({
                     closeButton: false,
                     closeOnClick: false
-                    });                        
+                    });                   
                     
                 map.on('click', 'polygons', function(e) {
                     var id = e.features[0].properties.id;
@@ -103,7 +103,6 @@
                     map.getCanvas().style.cursor = '';
                     popup.remove();
                 });
-
             });
         
             // Define bounds that conform to the `LngLatBoundsLike` object.

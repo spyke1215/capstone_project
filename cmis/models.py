@@ -42,8 +42,10 @@ class Lot(models.Model):
     cemetery = models.ForeignKey(Cemetery, on_delete=models.CASCADE) #CEMETERIES
     status = models.ForeignKey(Status, on_delete=models.CASCADE) #LOT STATUS
     occupied_layer = models.IntegerField() #OCCUPIED LAYERS
-    longitude = models.CharField(max_length=64) #LONGITUDE
-    latitude = models.CharField(max_length=64) #LATITUDE
+    geobl = models.CharField(max_length=64) #GEOLOCATION BOTTOM LEFT
+    geobr = models.CharField(max_length=64) #GEOLOCATION BOTTON RIGHT
+    geotr = models.CharField(max_length=64) #GEOLOCATION TOP RIGHT
+    geotl = models.CharField(max_length=64) #GEOLOCATION TOP LEFT
     sections = models.CharField(max_length=10) #CEMETERY SECTION
 
     class Meta:
@@ -51,7 +53,7 @@ class Lot(models.Model):
         verbose_name_plural = "lots"
     
     def __str__(self):
-        return f"#{self.id} | {self.category} | {self.cemetery} | {self.sections}"
+        return f"#{self.pk} | {self.category} | {self.cemetery} | {self.sections}"
 
 class Deceased(models.Model):
     lot = models.ForeignKey(Lot, on_delete=models.CASCADE)
@@ -68,4 +70,4 @@ class Deceased(models.Model):
             verbose_name_plural = "deceased"
 
     def __str__(self):
-        return f"{self.id} | {self.first_name} {self.middle_name} {self.last_name} | {self.birth_date} - {self.death_date}"
+        return f"{self.pk} | {self.first_name} {self.middle_name} {self.last_name} | {self.birth_date} - {self.death_date}"

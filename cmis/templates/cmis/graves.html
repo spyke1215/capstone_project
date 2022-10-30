@@ -1,0 +1,108 @@
+{% extends "cmis/layout.html" %}
+
+{% block title %}
+    Cemetery
+{% endblock%}
+
+{% block head %}
+<script src="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.js"></script>
+<link href="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block masthead %}
+
+<div class="justify-content-center d-flex" >
+<div id='map' style='width: 1600px; height: 750px; color: black;'></div>
+
+<script>
+    var map = new maplibregl.Map({
+    container: 'map',
+    style:
+    'https://api.maptiler.com/maps/streets/style.json?key=pYak4IN292AL67yzijvU',
+    center: [122.91021123885099, 10.595742481798105],
+    zoom: 18
+    });
+
+    map.setMaxZoom(24); //max zoom
+    map.setMinZoom(16);  //min zoom
+    map.setBearing(180); //rotation
+
+    map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
+
+    // Define bounds that conform to the `LngLatBoundsLike` object.
+    var bounds = [
+        [122.90782362654943, 10.594244730858899], // [west, south]
+        [122.912640077032, 10.597304816176521]  // [east, north]
+    ];
+
+    // Set the map's max bounds.
+    map.setMaxBounds(bounds);
+
+    var received_data  = {{ data|safe }};
+
+    map.on('load', function () {
+        map.addSource('graves', {
+            'type': 'geojson',
+            'data': received_data
+        });
+
+        map.addLayer({
+            'id': 'polygons',
+            'type': 'fill',
+            'source': 'graves',
+            'layout': {},
+            'paint': {
+            'fill-color': '#088',
+            'fill-opacity': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                1,
+                0.5
+            ]
+            }   
+        });
+
+        // outline of polygons
+        map.addLayer({
+            'id': 'outline',
+            'type': 'line',
+            'source': 'graves',
+            'layout': {},
+            'paint': {
+                'line-color': '#F3A040', // orange outline
+                'line-width': 3
+            }
+        }); 
+        var popup = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false
+            });                   
+            
+        map.on('click', 'polygons', function(e) {
+            var id = e.features[0].properties.id;
+            
+            window.location=id;
+            
+            });
+
+        map.on('mouseenter', 'polygons', function (e) {
+            map.getCanvas().style.cursor = 'pointer';
+            var id = e.features[0].properties.id;
+            
+            popup
+            .setLngLat(e.lngLat)
+            .setHTML('<h3>' + "GRAVE ID" + '</h3><p>' + id + '</p>')
+            .addTo(map);
+        });
+
+        map.on('mouseleave', 'polygons', function () {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+        
+    });    
+    </script>
+</div>
+
+{% endblock %}
+

@@ -1,11 +1,42 @@
+from hashlib import blake2b
 from django.shortcuts import render
 from cmis.models import *
 from django.db.models import Q
+import json
+import ast
 
 
 # Create your views here.
 def menu(request):
     return render(request,'cmis/menu.html')
+
+def graves(request):
+
+    bl = ""
+    br = ""
+    tr = ""
+    tl = ""
+    y = ''
+
+    for item in Lot.objects.all():
+
+        bl = item.geobl
+        br = item.geobr
+        tr = item.geotr
+        tl = item.geotl
+
+        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[["+bl+"],["+br+"],["+tr+"],["+tl+"],["+bl+"]]]}, 'properties': {'id': '4'}},"
+
+    # a Python object (dict):
+    x = {'type': 'FeatureCollection', 'features': ast.literal_eval(y)}
+
+    # convert into JSON:
+    jsdata = json.dumps(x)
+    print(jsdata)
+
+    return render(request,'cmis/graves.html', {
+        "data": jsdata
+    })
 
 def cemetery(request):
     return render(request,'cmis/cemetery.html')
