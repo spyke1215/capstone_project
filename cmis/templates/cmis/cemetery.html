@@ -33,70 +33,92 @@
         
             map.setMaxZoom(24); //max zoom
             map.setMinZoom(16);  //min zoom
-            map.setBearing(180); //rotation
-
-            var hoveredPolyId = null;
             
             map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
+
+            polygon = {
+                'id': 'polygons',
+                'type': 'fill',
+                'source': 'mapsource', // reference the data source
+                'layout': {},
+                'paint': {
+                    'fill-color': '#FFAA01', // orange color fill
+                    'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        1,
+                        0.5
+                    ]
+                }
+            }
+
+            outline = {
+                'id': 'outline',
+                'type': 'line',
+                'source': 'mapsource',
+                'layout': {},
+                'paint': {
+                    'line-color': '#F3A040', // orange outline
+                    'line-width': 3
+                }
+            }
+
+            sections = {
+                'type': 'geojson',
+                'data': 'static/cmis/sections.json'
+                }
+
+            graves = {
+                    'type': 'geojson',
+                    'data': {{ data|safe }}
+                }
 
             map.on('load', function () {
                 // sources
                 // GeoJSON polygon with 3 features
-                map.addSource('sections', {
-                'type': 'geojson',
-                'data': 'static/cmis/sections.json'
-                });
-            
+                map.addSource('mapsource', sections);
+
                 // map layers
-                // polygons
-                map.addLayer({
-                    'id': 'polygons',
-                    'type': 'fill',
-                    'source': 'sections', // reference the data source
-                    'layout': {},
-                    'paint': {
-                        'fill-color': '#FFAA01', // orange color fill
-                        'fill-opacity': [
-                            'case',
-                            ['boolean', ['feature-state', 'hover'], false],
-                            1,
-                            0.5
-                        ]
-                    }
+                
+                map.addLayer(polygon); // polygons
+                map.addLayer(outline);  // outline of polygons
+         
+                //fly to section
+                map.on('click', 'polygons', function (e) {
+                    var coordinates = e.features[0].geometry.coordinates[0];
+                    var bounds = coordinates.reduce(function(bounds, coord) {
+                        return bounds.extend(coord);
+                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+                    map.fitBounds(bounds, {
+                        padding: 20
                     });
-            
-                // outline of polygons
-                map.addLayer({
-                    'id': 'outline',
-                    'type': 'line',
-                    'source': 'sections',
-                    'layout': {},
-                    'paint': {
-                        'line-color': '#F3A040', // orange outline
-                        'line-width': 3
-                    }
-                }); 
+
+                    //remove layers and add new layers
+                    map.removeLayer('outline');
+                    map.removeLayer('polygons');
+                    map.removeSource('mapsource');
+
+                    map.addSource('mapsource', graves);
+                    map.addLayer(polygon); // polygons
+                    map.addLayer(outline);
+                });
                 
                 var popup = new maplibregl.Popup({
                     closeButton: false,
                     closeOnClick: false
-                    });                   
-                    
-                map.on('click', 'polygons', function(e) {
-                    var id = e.features[0].properties.id;
-                    
-                    window.location=id;
-                    
-                    });
-
+                });              
+                
+                //show popup when polygon is hovered
                 map.on('mouseenter', 'polygons', function (e) {
                     map.getCanvas().style.cursor = 'pointer';
+                    var coordinates = e.features[0].geometry.coordinates[0];
+                    var bounds = coordinates.reduce(function(bounds, coord) {
+                        return bounds.extend(coord);
+                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
                     var id = e.features[0].properties.id;
-                    
-                    popup
-                    .setLngLat(e.lngLat)
-                    .setHTML('<h3>' + "SECTION ID" + '</h3><p>' + id + '</p>')
-                    .addTo(map);
+                    popup.setLngLat(bounds.getCenter())
+                        .setHTML(id)
+                        .addTo(map);
                 });
 
                 map.on('mouseleave', 'polygons', function () {
@@ -104,7 +126,7 @@
                     popup.remove();
                 });
             });
-        
+
             // Define bounds that conform to the `LngLatBoundsLike` object.
             var bounds = [
                 [122.90782362654943, 10.594244730858899], // [west, south]

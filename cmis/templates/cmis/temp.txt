@@ -1,51 +1,34 @@
+map.on('zoom', function () {
+    if (map.getZoom() <= 19) {
+        map.setLayoutProperty('polygons', 'visibility', 'visible');
+        map.setLayoutProperty('outline', 'visibility', 'visible');
+    } else {
+        map.setLayoutProperty('polygons', 'visibility', 'none');
+        map.setLayoutProperty('outline', 'visibility', 'none');
+    }
+});   
 
-        // When the user moves their mouse over the state-fill layer, we'll update the
-        // feature state for the feature under the mouse.
-        map.on('mousemove', 'polygons', function (e) {
-            if (e.features.length > 0) {
-                if (hoveredPolyId) {
-                    map.setFeatureState(
-                        { source: 'sections', id: hoveredPolyId },
-                        { hover: false }
-                    );
-                }
-                hoveredPolyId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'sections', id: hoveredPolyId },
-                    { hover: true }
-                );
-            }
+//change source when zoom level changes
+map.on('zoom', function() {
+    if (map.getZoom() <= 18) {
+        map.addSource('polygons', {
+            'type': 'geojson',
+            'data': received_data
         });
-                
-        // When the mouse leaves the state-fill layer, update the feature state of the
-        // previously hovered feature.
-        map.on('mouseleave', 'polygons', function () {
-        if (hoveredPolyId) {
-            map.setFeatureState(
-                { source: 'sections', id: hoveredPolyId },
-                { hover: false }
-            );
-        }
-        hoveredPolyId = null;
-        });
+    } else {
+        map.removeSource('polygons');
+    }
+});
 
-        map.on('mouseenter', 'polygons', function(e) {
-            // Change the cursor style as a UI indicator.
-            map.getCanvas().style.cursor = 'pointer';
-    
-            // Single out the first found feature.
-            var feature = e.features[0];
-    
-            // Display a popup with the name of the county
-            popup.setLngLat(e.lngLat)
-                .setText(feature.properties.ID)
-                .addTo(map);
-        });
 
-        // Define bounds that conform to the `LngLatBoundsLike` object.
-                    var bounds = [
-                        [122.90782362654943, 10.594244730858899], // [west, south]
-                        [122.912640077032, 10.597304816176521]  // [east, north]
-                    ];
-                    // Set the map's max bounds.
-                    map.setMaxBounds(bounds);
+//load new geojson when zoom level is 21
+map.on('zoom', function() {
+    if (map.getZoom() <= 21) {
+        map.removeSource('sections');
+        map.removeLayer('sections');
+        map.addSource('graves', {
+            'type': 'geojson',
+            'data': received_data
+        });
+    }
+});

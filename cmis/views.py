@@ -10,7 +10,7 @@ import ast
 def menu(request):
     return render(request,'cmis/menu.html')
 
-def graves(request):
+def cemetery(request):
 
     bl = ""
     br = ""
@@ -18,14 +18,17 @@ def graves(request):
     tl = ""
     y = ''
 
-    for item in Lot.objects.all():
+    for deceased in Deceased.objects.all():
 
-        bl = item.geobl
-        br = item.geobr
-        tr = item.geotr
-        tl = item.geotl
+        bl = deceased.lot.geobl
+        br = deceased.lot.geobr
+        tr = deceased.lot.geotr
+        tl = deceased.lot.geotl
+        pk = str(deceased.lot.pk)
+        fname = str(deceased.first_name)
+        lname = deceased.last_name
 
-        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[["+bl+"],["+br+"],["+tr+"],["+tl+"],["+bl+"]]]}, 'properties': {'id': '4'}},"
+        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[["+bl+"],["+br+"],["+tr+"],["+tl+"],["+bl+"]]]}, 'properties': {'id': "+pk+", 'name': '"+fname+" "+lname+"'}},"
 
     # a Python object (dict):
     x = {'type': 'FeatureCollection', 'features': ast.literal_eval(y)}
@@ -34,12 +37,9 @@ def graves(request):
     jsdata = json.dumps(x)
     print(jsdata)
 
-    return render(request,'cmis/graves.html', {
+    return render(request,'cmis/cemetery.html', {
         "data": jsdata
     })
-
-def cemetery(request):
-    return render(request,'cmis/cemetery.html')
 
 def search_deceased(request):
     if request.method == "POST":
