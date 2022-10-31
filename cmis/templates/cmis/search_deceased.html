@@ -45,12 +45,9 @@
                 <div class="col-md-2">
                     <select class="form-select form-select-sm" style="margin-left: -18px;" name="section">
                         <option selected></option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
+                        {% for section in section %}
+                            <option value="{{ section.name }}">{{ section.name }}</option>
+                        {% endfor %}
                       </select>
                 </div>
             </div>
@@ -63,7 +60,7 @@
                     <select class="form-select form-select-sm" style="margin-left: -18px;" name="cemetery">
                         <option selected></option>
                         {% for cemetery in cemetery %}
-                            <option value="{{ cemetery.name }}">{{ cemetery.name}}</option>
+                            <option value="{{ cemetery.name }}">{{ cemetery.name }}</option>
                         {% endfor %}
                       </select>
                 </div>
@@ -90,18 +87,18 @@
         </tr>
         </thead>
         <tbody> 
-            {% for deceased in deceased %}
+            {% for grave in grave %}
             <form method="POST" id="form-id" action="{% url 'deceased' %}"> {% csrf_token %}
                 <tr id="table" style="cursor: pointer;">
-                    <input type="hidden" name="pk" value="{{ deceased.id }}"/>
-                    <th scope="row">{{ deceased.id }}</th>
-                    <td>{{ deceased.first_name }}</td>
-                    <td>{{ deceased.middle_name }}</td>
-                    <td>{{ deceased.last_name }}</td>
-                    <td>{{ deceased.birth_date }}</td>
-                    <td>{{ deceased.death_date }}</td>
-                    <td>{{ deceased.lot.sections }}</td>
-                    <td>{{ deceased.lot.cemetery }}</td>
+                    <input type="hidden" name="pk" value="{{ grave.id }}"/>
+                    <th scope="row">{{ grave.id }}</th>
+                    <td>{{ grave.deceased.first_name }}</td>
+                    <td>{{ grave.deceased.middle_name }}</td>
+                    <td>{{ grave.deceased.last_name }}</td>
+                    <td>{{ grave.deceased.birth_date }}</td>
+                    <td>{{ grave.deceased.death_date }}</td>
+                    <td>{{ grave.lot.sections.name }}</td>
+                    <td>{{ grave.lot.cemetery }}</td>
                 </tr>
             </form>
             {% endfor %}

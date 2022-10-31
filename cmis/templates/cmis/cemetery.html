@@ -7,6 +7,7 @@
 {% block head %}
 <script src="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.js"></script>
 <link href="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.css" rel="stylesheet"/>
+
 {% endblock %}
 
 {% block masthead %}
@@ -35,6 +36,21 @@
             map.setMinZoom(16);  //min zoom
             
             map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
+            map.addControl(new maplibregl.FullscreenControl(), 'top-left'); //fullscreen controls   
+
+            map.addControl(new maplibregl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true
+            }), 'top-left'); //geolocation controls
+
+            map.addControl(new maplibregl.ScaleControl({
+                maxWidth: 80,
+                unit: 'metric'
+            }), 'bottom-left'); //scale controls
+
+            zoomlevel = 'low'
 
             polygon = {
                 'id': 'polygons',
@@ -65,12 +81,12 @@
 
             sections = {
                 'type': 'geojson',
-                'data': 'static/cmis/sections.json'
+                'data': {{ section|safe }}
                 }
 
             graves = {
                     'type': 'geojson',
-                    'data': {{ data|safe }}
+                    'data': {{ lot|safe }}
                 }
 
             map.on('load', function () {
@@ -79,10 +95,9 @@
                 map.addSource('mapsource', sections);
 
                 // map layers
-                
                 map.addLayer(polygon); // polygons
                 map.addLayer(outline);  // outline of polygons
-         
+
                 //fly to section
                 map.on('click', 'polygons', function (e) {
                     var coordinates = e.features[0].geometry.coordinates[0];
@@ -93,16 +108,40 @@
                         padding: 20
                     });
 
-                    //remove layers and add new layers
-                    map.removeLayer('outline');
-                    map.removeLayer('polygons');
-                    map.removeSource('mapsource');
-
-                    map.addSource('mapsource', graves);
-                    map.addLayer(polygon); // polygons
-                    map.addLayer(outline);
+                    if(map.getZoom() > 23)
+                    {
+                        window.location.href = "deceased?q=" + e.features[0].properties.id_lot;
+                    }
                 });
-                
+
+                //change map on zoom
+                map.on('zoom', function () {
+
+                    if (map.getZoom() >= 19.5 && zoomlevel == 'low') {
+                        map.removeLayer('outline');
+                        map.removeLayer('polygons');
+                        map.removeSource('mapsource');
+
+                        map.addSource('mapsource', graves);
+                        map.addLayer(polygon); // polygons
+                        map.addLayer(outline);
+
+                        zoomlevel = "high"
+
+                    }else if (map.getZoom() < 19.5 && zoomlevel == 'high'){
+
+                        map.removeLayer('outline');
+                        map.removeLayer('polygons');
+                        map.removeSource('mapsource');
+
+                        map.addSource('mapsource', sections);
+                        map.addLayer(polygon); // polygons
+                        map.addLayer(outline);
+
+                        zoomlevel = "low"
+                    }
+                });
+
                 var popup = new maplibregl.Popup({
                     closeButton: false,
                     closeOnClick: false
@@ -115,16 +154,33 @@
                     var bounds = coordinates.reduce(function(bounds, coord) {
                         return bounds.extend(coord);
                     }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
-                    var id = e.features[0].properties.id;
+
+                    var name = e.features[0].properties.name;
                     popup.setLngLat(bounds.getCenter())
-                        .setHTML(id)
-                        .addTo(map);
+                    .setHTML("<h6>"+name+"</h6>")
+                    .addTo(map);
                 });
 
                 map.on('mouseleave', 'polygons', function () {
                     map.getCanvas().style.cursor = '';
                     popup.remove();
                 });
+
+                //how to get map source data
+                console.log(map.getSource('mapsource'));
+
+                //change polygon color by status
+                map.setPaintProperty('polygons', 'fill-color', [
+                    'case',
+                    ['==', ['get', 'status'], 'Available'],
+                    '#FFAA01',
+                    ['==', ['get', 'status'], 'Reserved'],
+                    '#FF0000',
+                    ['==', ['get', 'status'], 'Occupied'],
+                    '#00FF00',
+                    '#FFAA01'
+                ]);
+
             });
 
             // Define bounds that conform to the `LngLatBoundsLike` object.

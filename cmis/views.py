@@ -5,40 +5,56 @@ from django.db.models import Q
 import json
 import ast
 
-
 # Create your views here.
 def menu(request):
     return render(request,'cmis/menu.html')
 
 def cemetery(request):
 
-    bl = ""
-    br = ""
-    tr = ""
-    tl = ""
     y = ''
+    x = ''
+    pkl = ''
+    polygon = ''
 
-    for deceased in Deceased.objects.all():
+    for lot in Lot.objects.all():
 
-        bl = deceased.lot.geobl
-        br = deceased.lot.geobr
-        tr = deceased.lot.geotr
-        tl = deceased.lot.geotl
-        pk = str(deceased.lot.pk)
-        fname = str(deceased.first_name)
-        lname = deceased.last_name
+        polygon = str(lot.polygon)
+        pkl = str(lot.pk)
 
-        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[["+bl+"],["+br+"],["+tr+"],["+tl+"],["+bl+"]]]}, 'properties': {'id': "+pk+", 'name': '"+fname+" "+lname+"'}},"
+        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id_lot': "+pkl+""
 
-    # a Python object (dict):
+        if Grave.objects.filter(pk=pkl) :
+            for grave in Grave.objects.filter(pk=pkl):
+            
+                pkd = str(grave.deceased.pk)
+                fname = grave.deceased.first_name
+                lname = grave.deceased.last_name
+
+                y += ", 'id_deceased': "+pkd+", 'name': '"+fname+" "+lname+"'}},"
+
+        else:
+            y += "}},"
+    
     x = {'type': 'FeatureCollection', 'features': ast.literal_eval(y)}
+    lot = json.dumps(x)
 
-    # convert into JSON:
-    jsdata = json.dumps(x)
-    print(jsdata)
+    y = ''
+    x = ''
+
+    for section in Section.objects.all():
+
+        polygon = str(section.polygon)
+        pk = str(section.pk)
+        name = section.name
+
+        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id': '"+pk+"','name': '"+name+"'}},"
+    
+    x = {'type': 'FeatureCollection', 'features': ast.literal_eval(y)}
+    section = json.dumps(x)
 
     return render(request,'cmis/cemetery.html', {
-        "data": jsdata
+        "lot": lot,
+        "section": section
     })
 
 def search_deceased(request):
@@ -52,28 +68,30 @@ def search_deceased(request):
         section = request.POST.get("section")
         cemetery = request.POST.get("cemetery")
             
-        names = Q(first_name__iexact=first) | Q(middle_name__iexact=middle) | Q(last_name__iexact=last) | Q(lot__sections__iexact=section) | Q(lot__cemetery__name__iexact=cemetery)
+        names = Q(deceased__first_name__iexact=first) | Q(deceased__middle_name__iexact=middle) | Q(deceased__last_name__iexact=last) | Q(lot__sections__name__iexact=section) | Q(lot__cemetery__name__iexact=cemetery)
 
         if birth == "" and death == "":
             filtered = names
         elif death == "":
-            filtered = names | Q(birth_date__year=birth) 
+            filtered = names | Q(deceased__birth_date__year=birth) 
         elif birth == "":
-            filtered = names | Q(death_date__year=death)
+            filtered = names | Q(deceased__death_date__year=death)
         else:
-            filtered = names | Q(birth_date__year=birth) | Q(death_date__year=death)
+            filtered = names | Q(deceased__birth_date__year=birth) | Q(deceased__death_date__year=death)
     
         return render(request,'cmis/search_deceased.html',{
-            "deceased": Deceased.objects.filter(filtered),
+            "grave": Grave.objects.filter(filtered),
             "cemetery": Cemetery.objects.all(),
+            "section": Section.objects.all()
         })
     
     return render(request,'cmis/search_deceased.html',{
-            "deceased": Deceased.objects.all(),
-            "cemetery": Cemetery.objects.all()
+            "grave": Grave.objects.all(),
+            "cemetery": Cemetery.objects.all(),
+            "section": Section.objects.all()
         })
 
-def search_lot(request):
+def search_lot(request): #not working
     if request.method == "POST":
 
         category = request.POST.get("category")
@@ -96,7 +114,8 @@ def search_lot(request):
         "cemetery": Cemetery.objects.all()
     })
 
-def deceased(request):
+def deceased(request): #need to show multiple deceased. use grave table
+
     return render(request,'cmis/deceased.html', {
-        "deceased": Deceased.objects.get(pk=request.POST.get("pk"))
+        "deceased": Deceased.objects.get(pk=request.GET['q'])
     })

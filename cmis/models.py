@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -36,18 +37,25 @@ class Status(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+class Section(models.Model):
+    name = models.CharField(max_length=32) #NAME OF SECTION
+    polygon = models.CharField(max_length=256)
+
+    class Meta:
+        verbose_name = "section"
+        verbose_name_plural = "sections"
+
+    def __str__(self):
+        return f"{self.name}"
+
 
 class Lot(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE) #CATEGORIES
     cemetery = models.ForeignKey(Cemetery, on_delete=models.CASCADE) #CEMETERIES
     status = models.ForeignKey(Status, on_delete=models.CASCADE) #LOT STATUS
-    occupied_layer = models.IntegerField() #OCCUPIED LAYERS
-    geobl = models.CharField(max_length=64) #GEOLOCATION BOTTOM LEFT
-    geobr = models.CharField(max_length=64) #GEOLOCATION BOTTON RIGHT
-    geotr = models.CharField(max_length=64) #GEOLOCATION TOP RIGHT
-    geotl = models.CharField(max_length=64) #GEOLOCATION TOP LEFT
-    sections = models.CharField(max_length=10) #CEMETERY SECTION
-
+    sections = models.ForeignKey(Section, on_delete=models.CASCADE) #CEMETERY SECTION
+    polygon = models.CharField(max_length=128) #POLYGON
+    
     class Meta:
         verbose_name = "lot"
         verbose_name_plural = "lots"
@@ -56,7 +64,6 @@ class Lot(models.Model):
         return f"#{self.pk} | {self.category} | {self.cemetery} | {self.sections}"
 
 class Deceased(models.Model):
-    lot = models.ForeignKey(Lot, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=32) #FIRST NAME
     last_name = models.CharField(max_length=32) #LAST NAME
     middle_name = models.CharField(max_length=32) #MIDDLE NAME
@@ -71,3 +78,14 @@ class Deceased(models.Model):
 
     def __str__(self):
         return f"{self.pk} | {self.first_name} {self.middle_name} {self.last_name} | {self.birth_date} - {self.death_date}"
+
+class Grave(models.Model):
+    lot = models.ForeignKey(Lot, on_delete=models.CASCADE)
+    deceased = models.ForeignKey(Deceased, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "grave"
+        verbose_name_plural = "graves"
+
+    def __str__(self):
+        return f"{self.pk}"
