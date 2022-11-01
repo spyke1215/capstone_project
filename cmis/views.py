@@ -15,13 +15,15 @@ def cemetery(request):
     x = ''
     pkl = ''
     polygon = ''
+    status = ''
 
     for lot in Lot.objects.all():
 
         polygon = str(lot.polygon)
         pkl = str(lot.pk)
+        status = str(lot.status.name)
 
-        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id_lot': "+pkl+""
+        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id_lot': "+pkl+", 'status': '"+status+"'"
 
         if Grave.objects.filter(pk=pkl) :
             for grave in Grave.objects.filter(pk=pkl):

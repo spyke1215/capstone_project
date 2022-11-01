@@ -8,12 +8,36 @@
 <script src="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.js"></script>
 <link href="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.css" rel="stylesheet"/>
 
+<style>
+    .filter-ctrl {
+        position: fixed;
+        z-index: 1;
+    }
+    
+    .filter-ctrl input[type='text'] {
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        width: 100%;
+        border: 0;
+        background-color: #fff;
+        margin: 0;
+        color: rgba(0, 0, 0, 0.5);
+        padding: 10px;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+        width: 180px;
+    }
+</style>
+
 {% endblock %}
 
 {% block masthead %}
 
+
 <div class="justify-content-center d-flex" >
 <div id='map' style='width: 1600px; height: 750px; color: black;'></div>
+<div class="filter-ctrl">
+    <input id="filter-input" type="text" name="filter" placeholder="Filter by name"/>
+</div>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const key = urlParams.get('key') || 'pYak4IN292AL67yzijvU';
@@ -50,15 +74,23 @@
                 unit: 'metric'
             }), 'bottom-left'); //scale controls
 
-            zoomlevel = 'low'
+            var zoomlevel = 'low'
 
-            polygon = {
+            var polygon = {
                 'id': 'polygons',
                 'type': 'fill',
                 'source': 'mapsource', // reference the data source
                 'layout': {},
                 'paint': {
-                    'fill-color': '#FFAA01', // orange color fill
+                    'fill-color': [
+                        'match',
+                        ['get', 'status'],
+                        'Occupied', '#ff0000',
+                        'Vacant', '#00ff00',
+                        'Reserved', '#0000ff',
+                        'Unavailable', '#000000',
+                        '#ffffff'
+                    ],
                     'fill-opacity': [
                         'case',
                         ['boolean', ['feature-state', 'hover'], false],
@@ -68,7 +100,7 @@
                 }
             }
 
-            outline = {
+            var outline = {
                 'id': 'outline',
                 'type': 'line',
                 'source': 'mapsource',
@@ -79,12 +111,12 @@
                 }
             }
 
-            sections = {
+            var sections = {
                 'type': 'geojson',
                 'data': {{ section|safe }}
                 }
 
-            graves = {
+            var graves = {
                     'type': 'geojson',
                     'data': {{ lot|safe }}
                 }
@@ -165,9 +197,6 @@
                     map.getCanvas().style.cursor = '';
                     popup.remove();
                 });
-
-                //how to get map source data
-                console.log(map.getSource('mapsource'));
 
                 //change polygon color by status
                 map.setPaintProperty('polygons', 'fill-color', [
