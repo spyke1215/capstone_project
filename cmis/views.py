@@ -39,7 +39,7 @@ def cemetery(request):
     
     x = {'type': 'FeatureCollection', 'features': ast.literal_eval(y)}
     lot = json.dumps(x)
-
+    print(lot)
     y = ''
     x = ''
 

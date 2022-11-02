@@ -7,130 +7,159 @@
 {% block head %}
 <script src="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.js"></script>
 <link href="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.css" rel="stylesheet"/>
-
 <style>
-    .filter-ctrl {
-        position: fixed;
-        z-index: 1;
+    .filter-group {
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    border-radius: 3px;
+    width: 120px;
+    color: #fff;
     }
-    
-    .filter-ctrl input[type='text'] {
-        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-        width: 100%;
-        border: 0;
-        background-color: #fff;
-        margin: 0;
-        color: rgba(0, 0, 0, 0.5);
-        padding: 10px;
-        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
-        border-radius: 3px;
-        width: 180px;
+     
+    .filter-group input[type='checkbox']:first-child + label {
+    border-radius: 3px 3px 0 0;
     }
-</style>
-
+     
+    .filter-group label:last-child {
+    border-radius: 0 0 3px 3px;
+    border: none;
+    }
+     
+    .filter-group input[type='checkbox'] {
+    display: none;
+    }
+     
+    .filter-group input[type='checkbox'] + label {
+    background-color: #3386c0;
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    }
+     
+    .filter-group input[type='checkbox'] + label {
+    background-color: #3386c0;
+    text-transform: capitalize;
+    }
+     
+    .filter-group input[type='checkbox'] + label:hover,
+    .filter-group input[type='checkbox']:checked + label {
+    background-color: #4ea0da;
+    }
+     
+    .filter-group input[type='checkbox']:checked + label:before {
+    content: '✔';
+    margin-right: 5px;
+    }
+    </style>
 {% endblock %}
 
 {% block masthead %}
-
-
 <div class="justify-content-center d-flex" >
 <div id='map' style='width: 1600px; height: 750px; color: black;'></div>
-<div class="filter-ctrl">
-    <input id="filter-input" type="text" name="filter" placeholder="Filter by name"/>
-</div>
+<nav id="filter-group" class="filter-group"></nav>
+
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const key = urlParams.get('key') || 'pYak4IN292AL67yzijvU';
+
+        var zoomlevel = 'low';
+
+        var filterGroup = document.getElementById('filter-group');
+
+        var polygon = {
+            'id': 'polygons',
+            'type': 'fill',
+            'source': 'section', // reference the data source
+            'layout': {},
+            'paint': {
+                'fill-color': '#90EE90',
+                'fill-opacity': [
+                    'case',
+                    ['boolean', ['feature-state', 'hover'], false],
+                    1,
+                    0.5
+                ]
+            }
+        };
+
+        var outline = {
+            'id': 'outline',
+            'type': 'line',
+            'source': 'section',
+            'layout': {},
+            'paint': {
+                'line-color': '#5A5A5A', // orange outline
+                'line-width': 3
+            }
+        };
+
+        var section = {{ section|safe }};
+        var graves = {{ lot|safe }};
+
+        var popup = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+
+        var layerIDs = []; 
+
+        // BOUNDERIES
+        var bounds = [
+        [122.90782362654943, 10.594244730858899], // [west, south]
+        [122.912640077032, 10.597304816176521]  // [east, north]
+        ];
 
         if (!maplibregl.supported()) {
             alert('Your browser does not support MapLibre GL');
         } else {
             const map = new maplibregl.Map({
                 container: 'map', // container id
-                style: `https://api.maptiler.com/maps/streets/style.json?key=${key}`, // style URL
+                style: "https://maps.geoapify.com/v1/styles/osm-liberty/style.json?apiKey=ddcc779eeaf8434091049673bfc21281",
                 center: [122.91021123885099, 10.595742481798105], // starting position [lng, lat]
                 zoom: 18, // starting zoom
             });
-
-            map.on('error', function(err) {
-                throw new Error("To load the map, you must replace YOUR_MAPTILER_API_KEY_HERE first");
-            });
-        
-            map.setMaxZoom(24); //max zoom
-            map.setMinZoom(16);  //min zoom
             
+            // ZOOM
+            map.setMaxZoom(22); //max zoom
+            map.setMinZoom(16); //min zoom
+            
+            // CONTROLS
             map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
             map.addControl(new maplibregl.FullscreenControl(), 'top-left'); //fullscreen controls   
-
-            map.addControl(new maplibregl.GeolocateControl({
+            map.addControl(new maplibregl.GeolocateControl({ 
                 positionOptions: {
                     enableHighAccuracy: true
                 },
                 trackUserLocation: true
             }), 'top-left'); //geolocation controls
 
-            map.addControl(new maplibregl.ScaleControl({
-                maxWidth: 80,
-                unit: 'metric'
-            }), 'bottom-left'); //scale controls
-
-            var zoomlevel = 'low'
-
-            var polygon = {
-                'id': 'polygons',
-                'type': 'fill',
-                'source': 'mapsource', // reference the data source
-                'layout': {},
-                'paint': {
-                    'fill-color': [
-                        'match',
-                        ['get', 'status'],
-                        'Occupied', '#ff0000',
-                        'Vacant', '#00ff00',
-                        'Reserved', '#0000ff',
-                        'Unavailable', '#000000',
-                        '#ffffff'
-                    ],
-                    'fill-opacity': [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
-                        1,
-                        0.5
-                    ]
-                }
-            }
-
-            var outline = {
-                'id': 'outline',
-                'type': 'line',
-                'source': 'mapsource',
-                'layout': {},
-                'paint': {
-                    'line-color': '#F3A040', // orange outline
-                    'line-width': 3
-                }
-            }
-
-            var sections = {
-                'type': 'geojson',
-                'data': {{ section|safe }}
-                }
-
-            var graves = {
-                    'type': 'geojson',
-                    'data': {{ lot|safe }}
-                }
-
+            // Load the data
             map.on('load', function () {
                 // sources
-                // GeoJSON polygon with 3 features
-                map.addSource('mapsource', sections);
+                map.addSource('section', {
+                    'type': 'geojson',
+                    'data': section
+                });
 
-                // map layers
-                map.addLayer(polygon); // polygons
-                map.addLayer(outline);  // outline of polygons
+                map.addLayer(polygon);
+                map.addLayer(outline);
 
-                //fly to section
+                map.on('mouseenter', 'polygons', function (e) {
+                    map.getCanvas().style.cursor = 'pointer';
+                    var coordinates = e.features[0].geometry.coordinates[0];
+                    var bounds = coordinates.reduce(function(bounds, coord) {
+                        return bounds.extend(coord);
+                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+    
+                    var name = e.features[0].properties.name;
+                    popup.setLngLat(bounds.getCenter())
+                    .setHTML("<h6><strong>"+name+"</strong></h6>") //!need more data
+                    .addTo(map);
+                });
+
                 map.on('click', 'polygons', function (e) {
                     var coordinates = e.features[0].geometry.coordinates[0];
                     var bounds = coordinates.reduce(function(bounds, coord) {
@@ -139,58 +168,11 @@
                     map.fitBounds(bounds, {
                         padding: 20
                     });
-
+    
                     if(map.getZoom() > 23)
                     {
                         window.location.href = "deceased?q=" + e.features[0].properties.id_lot;
                     }
-                });
-
-                //change map on zoom
-                map.on('zoom', function () {
-
-                    if (map.getZoom() >= 19.5 && zoomlevel == 'low') {
-                        map.removeLayer('outline');
-                        map.removeLayer('polygons');
-                        map.removeSource('mapsource');
-
-                        map.addSource('mapsource', graves);
-                        map.addLayer(polygon); // polygons
-                        map.addLayer(outline);
-
-                        zoomlevel = "high"
-
-                    }else if (map.getZoom() < 19.5 && zoomlevel == 'high'){
-
-                        map.removeLayer('outline');
-                        map.removeLayer('polygons');
-                        map.removeSource('mapsource');
-
-                        map.addSource('mapsource', sections);
-                        map.addLayer(polygon); // polygons
-                        map.addLayer(outline);
-
-                        zoomlevel = "low"
-                    }
-                });
-
-                var popup = new maplibregl.Popup({
-                    closeButton: false,
-                    closeOnClick: false
-                });              
-                
-                //show popup when polygon is hovered
-                map.on('mouseenter', 'polygons', function (e) {
-                    map.getCanvas().style.cursor = 'pointer';
-                    var coordinates = e.features[0].geometry.coordinates[0];
-                    var bounds = coordinates.reduce(function(bounds, coord) {
-                        return bounds.extend(coord);
-                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
-
-                    var name = e.features[0].properties.name;
-                    popup.setLngLat(bounds.getCenter())
-                    .setHTML("<h6>"+name+"</h6>")
-                    .addTo(map);
                 });
 
                 map.on('mouseleave', 'polygons', function () {
@@ -198,30 +180,151 @@
                     popup.remove();
                 });
 
-                //change polygon color by status
-                map.setPaintProperty('polygons', 'fill-color', [
-                    'case',
-                    ['==', ['get', 'status'], 'Available'],
-                    '#FFAA01',
-                    ['==', ['get', 'status'], 'Reserved'],
-                    '#FF0000',
-                    ['==', ['get', 'status'], 'Occupied'],
-                    '#00FF00',
-                    '#FFAA01'
-                ]);
+                //change map on zoom
+                map.on('zoom', function () {
 
+                    if (map.getZoom() >= 19.5 && zoomlevel == 'low') {
+                        
+                        map.removeLayer('outline');
+                        map.removeLayer('polygons');
+                        map.removeSource('section');
+                        
+                        map.addSource('graves', {
+                            'type': 'geojson',
+                            'data': graves
+                        });
+
+                        map.addLayer({
+                            'id': 'outline',
+                            'type': 'line',
+                            'source': 'graves',
+                            'layout': {},
+                            'paint': {
+                                'line-color': '#5A5A5A',
+                                'line-width': 3
+                            }
+                        });
+
+                        graves.features.forEach(function (feature) {
+                            var status = feature.properties['status'];
+                            var layerID = 'poi-' + status;
+                            
+                            // Add a layer for this symbol type if it hasn't been added already.
+                            if (!map.getLayer(layerID)) {
+                                map.addLayer({
+                                    'id': layerID,
+                                    'type': 'fill',
+                                    'source': 'graves',
+                                    'layout': {},
+                                    'paint':{
+                                        'fill-color':[
+                                            'match',
+                                            ['get', 'status'],
+                                            'Occupied', '#ff3838',
+                                            'Vacant', '#56f000',
+                                            'Reserved', '#2dccff',
+                                            'Unavailable', '#9ea7ad',
+                                            '#90EE90',
+                                        ],
+                                        'fill-opacity': [
+                                            'case',
+                                            ['boolean', ['feature-state', 'hover'], false],
+                                            1,
+                                            0.5
+                                        ]
+                                    },
+                                    'filter': ['==', 'status', status]
+                                });
+                                
+                                // Add checkbox and label elements for the layer.
+                                var input = document.createElement('input');
+                                input.type = 'checkbox';
+                                input.id = layerID;
+                                input.checked = true;
+                                filterGroup.appendChild(input);
+                
+                                var label = document.createElement('label');
+                                label.setAttribute('for', layerID);
+                                label.textContent = status;
+                                filterGroup.appendChild(label);
+                                
+                                // When the checkbox changes, update the visibility of the layer.
+                                input.addEventListener('change', function (e) {
+                                    map.setLayoutProperty(
+                                    layerID,
+                                    'visibility',
+                                    e.target.checked ? 'visible' : 'none'
+                                    );
+                                });
+
+                                map.on('mouseenter', layerID, function (e) {
+                                    map.getCanvas().style.cursor = 'pointer';
+                                    var coordinates = e.features[0].geometry.coordinates[0];
+                                    var bounds = coordinates.reduce(function(bounds, coord) {
+                                        return bounds.extend(coord);
+                                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+                    
+                                    var name = e.features[0].properties.name;
+                                    popup.setLngLat(bounds.getCenter())
+                                    .setHTML("<h6><strong>"+name+"</strong></h6>") //!need more data
+                                    .addTo(map);
+                                });
+
+                                map.on('click', layerID, function (e) {
+                                    var coordinates = e.features[0].geometry.coordinates[0];
+                                    var bounds = coordinates.reduce(function(bounds, coord) {
+                                        return bounds.extend(coord);
+                                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+                                    map.fitBounds(bounds, {
+                                        padding: 20
+                                    });
+                    
+                                    if(map.getZoom() > 23)
+                                    {
+                                        window.location.href = "deceased?q=" + e.features[0].properties.id_lot;
+                                    }
+                                });
+
+                                map.on('mouseleave', layerID, function () {
+                                    map.getCanvas().style.cursor = '';
+                                    popup.remove();
+                                });
+
+                                layerIDs.push(layerID);
+                            }
+                        });
+                        zoomlevel = "high"
+
+                    }else if (map.getZoom() < 19.5 && zoomlevel == 'high'){
+
+                        for (const layer of layerIDs) //remove layers
+                        {
+                            console.log(layer);
+                            map.removeLayer(layer);
+                        }
+
+                        const list = document.getElementById("filter-group"); //remove checkboxes
+                        while (list.hasChildNodes()) {
+                            list.removeChild(list.firstChild);
+                        }
+                        map.removeLayer('outline');
+                        map.removeSource('graves');
+                    
+                        map.addSource('section', {
+                            'type': 'geojson',
+                            'data': section
+                        });
+                        map.addLayer(polygon);
+                        map.addLayer(outline);
+
+                        zoomlevel = "low"
+                    }
+                });
             });
-
-            // Define bounds that conform to the `LngLatBoundsLike` object.
-            var bounds = [
-                [122.90782362654943, 10.594244730858899], // [west, south]
-                [122.912640077032, 10.597304816176521]  // [east, north]
-            ];
             // Set the map's max bounds.
-            map.setMaxBounds(bounds);
+            map.setMaxBounds(bounds);   
         }
     </script>
 </div>
-
 {% endblock %}
 
