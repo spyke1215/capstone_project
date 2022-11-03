@@ -59,7 +59,7 @@ def cemetery(request):
         "section": section
     })
 
-def search_deceased(request):
+def search(request):
     if request.method == "POST":
 
         first = request.POST.get("first")
@@ -70,7 +70,7 @@ def search_deceased(request):
         section = request.POST.get("section")
         cemetery = request.POST.get("cemetery")
             
-        names = Q(deceased__first_name__iexact=first) | Q(deceased__middle_name__iexact=middle) | Q(deceased__last_name__iexact=last) | Q(lot__sections__name__iexact=section) | Q(lot__cemetery__name__iexact=cemetery)
+        names = Q(deceased__first_name__iexact=first) | Q(deceased__middle_name__iexact=middle) | Q(deceased__last_name__iexact=last) | Q(lot__section__name__iexact=section) | Q(lot__section__cemetery__name__iexact=cemetery)
 
         if birth == "" and death == "":
             filtered = names
@@ -81,43 +81,29 @@ def search_deceased(request):
         else:
             filtered = names | Q(deceased__birth_date__year=birth) | Q(deceased__death_date__year=death)
     
-        return render(request,'cmis/search_deceased.html',{
+        return render(request,'cmis/search.html',{
             "grave": Grave.objects.filter(filtered),
             "cemetery": Cemetery.objects.all(),
             "section": Section.objects.all()
         })
     
-    return render(request,'cmis/search_deceased.html',{
-            "grave": Grave.objects.all(),
-            "cemetery": Cemetery.objects.all(),
-            "section": Section.objects.all()
-        })
+    else:
+        return render(request,'cmis/search.html',{
+                "grave": Grave.objects.all(),
+                "cemetery": Cemetery.objects.all(),
+                "section": Section.objects.all()
+            })
 
-def search_lot(request): #not working
+def deceased(request):
+
     if request.method == "POST":
-
-        category = request.POST.get("category")
-        cemetery = request.POST.get("cemetery")
-        status = request.POST.get("status")
-        layer = request.POST.get("layer")
-        section = request.POST.get("section")
     
-        return render(request,'cmis/search_lot.html',{
-            "lot": Lot.objects.filter(Q(category__name__iexact=category) | Q(cemetery__name__iexact=cemetery) | Q(status__name__iexact=status) | Q(occupied_layer__iexact=layer) | Q(sections__iexact=section)),
-            "category": Category.objects.all(),
-            "status": Status.objects.all(),
-            "cemetery": Cemetery.objects.all()
+        return render(request,'cmis/deceased.html', {
+            "grave": Grave.objects.get(pk=request.POST.get("pk"))
         })
 
-    return render(request,'cmis/search_lot.html',{
-        "lot": Lot.objects.all(),
-        "category": Category.objects.all(),
-        "status": Status.objects.all(),
-        "cemetery": Cemetery.objects.all()
-    })
+    else:
 
-def deceased(request): #need to show multiple deceased. use grave table
-
-    return render(request,'cmis/deceased.html', {
-        "deceased": Deceased.objects.get(pk=request.GET['q'])
-    })
+        return render(request,'cmis/deceased.html', {
+            "grave": Grave.objects.get(pk=request.GET['q'])
+        })
