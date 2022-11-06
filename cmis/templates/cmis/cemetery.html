@@ -118,8 +118,8 @@
             const map = new maplibregl.Map({
                 container: 'map', // container id
                 style: "https://maps.geoapify.com/v1/styles/osm-liberty/style.json?apiKey=ddcc779eeaf8434091049673bfc21281",
-                center: [122.9103054858356, 10.595791254880112], // starting position [lng, lat]
-                zoom: 18, // starting zoom
+                center: {{ center|safe }}, // starting position [lng, lat]
+                zoom: {{ zoom|safe }}, // starting zoom
             });
 
             // Set the map's max bounds.

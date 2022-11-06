@@ -36,19 +36,19 @@ class Status(models.Model):
 
 class Section(models.Model):
     name = models.CharField(max_length=32) #NAME OF SECTION
-    polygon = models.CharField(max_length=256)
+    polygon = models.CharField(max_length=1024)
     cemetery = models.ForeignKey(Cemetery, on_delete=models.CASCADE)
     class Meta:
         verbose_name_plural = "sections"
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} | {self.cemetery}"
 
 class Lot(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE) #CATEGORIES
     status = models.ForeignKey(Status, on_delete=models.CASCADE) #LOT STATUS
     section = models.ForeignKey(Section, on_delete=models.CASCADE) #CEMETERY SECTION
-    polygon = models.CharField(max_length=128) #POLYGON
+    polygon = models.CharField(max_length=1024) #POLYGON
     
     class Meta:
         verbose_name_plural = "lots"

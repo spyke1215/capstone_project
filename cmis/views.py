@@ -11,52 +11,65 @@ def menu(request):
 
 def cemetery(request):
 
-    y = ''
-    x = ''
-    pkl = ''
-    polygon = ''
-    status = ''
+    lot = ''
+    section = ''
 
-    for lot in Lot.objects.all():
+    if Lot.objects.filter(section__cemetery__name=request.GET['q']):
 
-        polygon = str(lot.polygon)
-        pkl = str(lot.pk)
-        status = str(lot.status.name)
+        string = ''
+        dict = ''
 
-        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id_lot': "+pkl+", 'status': '"+status+"'"
+        for lot in Lot.objects.filter(section__cemetery__name=request.GET['q']):
 
-        if Grave.objects.filter(pk=pkl) :
-            for grave in Grave.objects.filter(pk=pkl):
-            
-                pkd = str(grave.deceased.pk)
-                fname = grave.deceased.first_name
-                lname = grave.deceased.last_name
+            polygon = str(lot.polygon)
+            pkl = str(lot.pk)
+            status = str(lot.status.name)
 
-                y += ", 'id_deceased': "+pkd+", 'name': '"+fname+" "+lname+"'}},"
+            string += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id_lot': "+pkl+", 'status': '"+status+"'"
 
-        else:
-            y += "}},"
+            if Grave.objects.filter(pk=pkl) :
+                for grave in Grave.objects.filter(pk=pkl):
+                
+                    pkd = str(grave.deceased.pk)
+                    fname = grave.deceased.first_name
+                    lname = grave.deceased.last_name
+
+                    string += ", 'id_deceased': "+pkd+", 'name': '"+fname+" "+lname+"'}},"
+
+            else:
+                string += "}},"
+        
+        dict = {'type': 'FeatureCollection', 'features': ast.literal_eval(string)}
+        lot = json.dumps(dict)
+
+    if Section.objects.filter(cemetery__name=request.GET['q']):
+
+        string1 = ''
+        dict1 = ''
+
+        for section in Section.objects.filter(cemetery__name=request.GET['q']):
+
+            polygon = str(section.polygon)
+            pk = str(section.pk)
+            name = section.name
+
+            string1 += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id': '"+pk+"','name': '"+name+"'}},"
+        
+        dict1 = {'type': 'FeatureCollection', 'features': ast.literal_eval(string1)}
+        section = json.dumps(dict1)
     
-    x = {'type': 'FeatureCollection', 'features': ast.literal_eval(y)}
-    lot = json.dumps(x)
-    print(lot)
-    y = ''
-    x = ''
+    center = ''
+    zoom = ''
 
-    for section in Section.objects.all():
-
-        polygon = str(section.polygon)
-        pk = str(section.pk)
-        name = section.name
-
-        y += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id': '"+pk+"','name': '"+name+"'}},"
-    
-    x = {'type': 'FeatureCollection', 'features': ast.literal_eval(y)}
-    section = json.dumps(x)
+    for cemetery in Cemetery.objects.filter(name=request.GET['q']):
+        center = cemetery.geolocation
+        zoom = cemetery.zoom
 
     return render(request,'cmis/cemetery.html', {
         "lot": lot,
-        "section": section
+        "section": section,
+        "center": center,
+        "zoom": zoom
     })
 
 def search(request):
