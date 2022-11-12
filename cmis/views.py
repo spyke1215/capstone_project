@@ -1,9 +1,11 @@
-from hashlib import blake2b
-from django.shortcuts import render
-from cmis.models import *
-from django.db.models import Q
-import json
 import ast
+import json
+from hashlib import blake2b
+
+from django.db.models import Q
+from django.shortcuts import render
+
+from cmis.models import *
 
 # Create your views here.
 
