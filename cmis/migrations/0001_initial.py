@@ -15,7 +15,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Category',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=32)),
                 ('max_layers', models.IntegerField()),
                 ('price', models.IntegerField()),
@@ -28,7 +29,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Cemetery',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=32)),
                 ('geolocation', models.CharField(max_length=64)),
                 ('address', models.CharField(max_length=64)),
@@ -43,13 +45,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Deceased',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('first_name', models.CharField(max_length=32)),
                 ('last_name', models.CharField(max_length=32)),
                 ('middle_name', models.CharField(max_length=32)),
                 ('birth_date', models.DateField()),
                 ('death_date', models.DateField()),
-                ('description', models.CharField(blank=True, max_length=128, null=True)),
+                ('description', models.CharField(
+                    blank=True, max_length=128, null=True)),
                 ('image', models.ImageField(blank=True, null=True, upload_to='')),
             ],
             options={
@@ -60,7 +64,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Status',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=32)),
             ],
             options={
@@ -71,10 +76,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Section',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=32)),
                 ('polygon', models.CharField(max_length=256)),
-                ('cemetery', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cmis.cemetery')),
+                ('cemetery', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='cmis.cemetery')),
             ],
             options={
                 'verbose_name': 'section',
@@ -84,11 +91,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Lot',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('polygon', models.CharField(max_length=128)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cmis.category')),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cmis.section')),
-                ('status', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cmis.status')),
+                ('category', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='cmis.category')),
+                ('section', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='cmis.section')),
+                ('status', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='cmis.status')),
             ],
             options={
                 'verbose_name': 'lot',
@@ -98,9 +109,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Grave',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deceased', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cmis.deceased')),
-                ('lot', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cmis.lot')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('deceased', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='cmis.deceased')),
+                ('lot', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='cmis.lot')),
             ],
             options={
                 'verbose_name': 'grave',
