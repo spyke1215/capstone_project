@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-9lvvv2($mv4h+&3@ql9atv_#3%6vt#35!24@h=gur&%w&n4ks8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -36,10 +36,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'django_tables2',
+    'django_filters',
     'cmis',
-
-    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -53,6 +52,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'capstone.urls'
+
+DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
 
 TEMPLATES = [
     {
@@ -117,6 +118,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
+
+STATIC_ROOT = "app-root/repo/wsgi/static"
 
 STATIC_URL = 'static/'
 

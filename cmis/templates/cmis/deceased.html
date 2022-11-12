@@ -5,16 +5,45 @@
 {% endblock %}
 
 {% block masthead %}  
-<div class="d-flex justify-content-center">
-    {{ deceased.id }}
-    {{ deceased.first_name }}
-    {{ deceased.middle_name }}
-    {{ deceased.last_name }}
-    {{ deceased.description }}
-    {{ deceased.image }}
-    {{ deceased.lot.sections }}
-    <a href=https://maps.google.com/maps?q={{ deceased.lot.latitude }},{{ deceased.lot.longitude }}>
-        <button>GPS</button>
-    </a>
+<div style="background: #212529;">
+    <div class="container" style="padding: 30px;">
+        <section class="py-4 py-xl-5">
+            <div class="container">
+                <div class="bg-dark border rounded border-0 border-dark overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-6">
+                            <div class="text-white p-4 p-md-5">
+                                <h2 class="fw-bold text-white mb-3">{{ grave.deceased.first_name }} {{ grave.deceased.middle_name }} {{ grave.deceased.last_name }}</h2>
+                                <p>Birth: {{ grave.deceased.birth_date }}</p>
+                                <p>Death: {{ grave.deceased.death_date }}</p>
+                                <p>Section: {{ grave.deceased.lot.sections }}</p>
+                                <p>{{ grave.deceased.description }}</p>
+                                <p class="mb-4"></p>
+                                <div class="my-3"><a class="btn btn-primary btn-lg me-2" role="button" id="go-back" style="color: rgb(0,0,0);background: rgb(251,251,251);font-size: 15px;">Go Back&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-arrow-return-left">
+                                        <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z"></path>
+                                    </svg></a><a class="btn btn-light btn-lg" role="button"  href=https://maps.google.com/maps?q={{ deceased.lot.latitude }},{{ deceased.lot.longitude }} style="background: rgb(111,152,193);color: rgb(255,255,255);font-size: 15px;">Go to Location&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-arrow-return-right">
+                                        <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5z"></path>
+                                    </svg></a></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 order-first order-md-last" style="min-height: 250px;">
+                            {% if grave.deceased.image %}
+                                <img class="w-100 h-100 fit-cover" src="{{ grave.deceased.image.url }}">
+                            {% else %}
+                            <div class="w-100 h-100 fit-cover d-flex justify-content-center align-content-center flex-wrap">NO IMAGE AVAILABLE</div>
+                            {% endif %}
+                        </div>
+                            
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>
+
+<script>
+    document.getElementById('go-back').addEventListener('click', () => {
+        history.back();
+      });      
+</script>
 {% endblock %}
