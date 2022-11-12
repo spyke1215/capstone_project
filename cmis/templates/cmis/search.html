@@ -16,12 +16,12 @@
                     <p>First Name:</p>
                 </div>
                 <div class="col-md-2"><input name="first" type="text" style="margin-left: -18px;"></div>
-                
+
                 <div class="col-md-2">
                     <p>Middle Name:</p>
                 </div>
                 <div class="col-md-2"><input name="middle" type="text" style="margin-left: -18px;"></div>
-                
+
                 <div class="col-md-2">
                     <p>Last Name:</p>
                 </div>
@@ -33,12 +33,12 @@
                     <p>Year Born:&nbsp;</p>
                 </div>
                 <div class="col-md-2"><input name="birth" type="text" style="margin-left: -18px;"></div>
-               
+
                 <div class="col-md-2">
                     <p>Year Died:</p>
                 </div>
                 <div class="col-md-2"><input name="death" type="text" style="margin-left: -18px;"></div>
-                
+
                 <div class="col-md-2">
                     <p>Section:</p>
                 </div>
@@ -64,9 +64,9 @@
                         {% endfor %}
                       </select>
                 </div>
-                
+
                 <div class="col"><button class="btn btn-primary" type="submit" style="background: rgb(71,76,81);">Search&nbsp;<i class="fas fa-search"></i></button></div>
-            
+
             </div>
         </form>
       </div>
@@ -86,7 +86,7 @@
             <th scope="col">Cemetery</th>
         </tr>
         </thead>
-        <tbody> 
+        <tbody>
             {% for grave in grave %}
             <form method="POST" id="form-id" action="{% url 'deceased' %}"> {% csrf_token %}
                 <tr id="table" style="cursor: pointer;">
@@ -107,12 +107,12 @@
 </div>
 
 <script>
-        
+
     var form = document.getElementById("form-id");
 
     document.getElementById("table").addEventListener("click", function () {
     form.submit();
     });
-    
+
 </script>
 {% endblock %}
