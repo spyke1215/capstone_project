@@ -6,41 +6,41 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cmis', '0002_remove_cemetery_center'),
+        ("cmis", "0002_remove_cemetery_center"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='category',
-            options={'verbose_name_plural': 'categories'},
+            name="category",
+            options={"verbose_name_plural": "categories"},
         ),
         migrations.AlterModelOptions(
-            name='cemetery',
-            options={'verbose_name_plural': 'cemeteries'},
+            name="cemetery",
+            options={"verbose_name_plural": "cemeteries"},
         ),
         migrations.AlterModelOptions(
-            name='deceased',
-            options={'verbose_name_plural': 'deceased'},
+            name="deceased",
+            options={"verbose_name_plural": "deceased"},
         ),
         migrations.AlterModelOptions(
-            name='grave',
-            options={'verbose_name_plural': 'graves'},
+            name="grave",
+            options={"verbose_name_plural": "graves"},
         ),
         migrations.AlterModelOptions(
-            name='lot',
-            options={'verbose_name_plural': 'lots'},
+            name="lot",
+            options={"verbose_name_plural": "lots"},
         ),
         migrations.AlterModelOptions(
-            name='section',
-            options={'verbose_name_plural': 'sections'},
+            name="section",
+            options={"verbose_name_plural": "sections"},
         ),
         migrations.AlterModelOptions(
-            name='status',
-            options={'verbose_name_plural': 'status'},
+            name="status",
+            options={"verbose_name_plural": "status"},
         ),
         migrations.AlterField(
-            model_name='deceased',
-            name='middle_name',
+            model_name="deceased",
+            name="middle_name",
             field=models.CharField(blank=True, max_length=32),
         ),
     ]

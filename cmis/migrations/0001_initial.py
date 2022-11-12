@@ -8,117 +8,191 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=32)),
-                ('max_layers', models.IntegerField()),
-                ('price', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=32)),
+                ("max_layers", models.IntegerField()),
+                ("price", models.IntegerField()),
             ],
             options={
-                'verbose_name': 'category',
-                'verbose_name_plural': 'categories',
+                "verbose_name": "category",
+                "verbose_name_plural": "categories",
             },
         ),
         migrations.CreateModel(
-            name='Cemetery',
+            name="Cemetery",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=32)),
-                ('geolocation', models.CharField(max_length=64)),
-                ('address', models.CharField(max_length=64)),
-                ('center', models.CharField(max_length=64)),
-                ('zoom', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=32)),
+                ("geolocation", models.CharField(max_length=64)),
+                ("address", models.CharField(max_length=64)),
+                ("center", models.CharField(max_length=64)),
+                ("zoom", models.IntegerField()),
             ],
             options={
-                'verbose_name': 'cemetery',
-                'verbose_name_plural': 'cemeteries',
+                "verbose_name": "cemetery",
+                "verbose_name_plural": "cemeteries",
             },
         ),
         migrations.CreateModel(
-            name='Deceased',
+            name="Deceased",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=32)),
-                ('last_name', models.CharField(max_length=32)),
-                ('middle_name', models.CharField(max_length=32)),
-                ('birth_date', models.DateField()),
-                ('death_date', models.DateField()),
-                ('description', models.CharField(
-                    blank=True, max_length=128, null=True)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=32)),
+                ("last_name", models.CharField(max_length=32)),
+                ("middle_name", models.CharField(max_length=32)),
+                ("birth_date", models.DateField()),
+                ("death_date", models.DateField()),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=128, null=True),
+                ),
+                ("image", models.ImageField(blank=True, null=True, upload_to="")),
             ],
             options={
-                'verbose_name': 'deceased',
-                'verbose_name_plural': 'deceased',
+                "verbose_name": "deceased",
+                "verbose_name_plural": "deceased",
             },
         ),
         migrations.CreateModel(
-            name='Status',
+            name="Status",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=32)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=32)),
             ],
             options={
-                'verbose_name': 'status',
-                'verbose_name_plural': 'status',
+                "verbose_name": "status",
+                "verbose_name_plural": "status",
             },
         ),
         migrations.CreateModel(
-            name='Section',
+            name="Section",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=32)),
-                ('polygon', models.CharField(max_length=256)),
-                ('cemetery', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE, to='cmis.cemetery')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=32)),
+                ("polygon", models.CharField(max_length=256)),
+                (
+                    "cemetery",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cmis.cemetery"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'section',
-                'verbose_name_plural': 'sections',
+                "verbose_name": "section",
+                "verbose_name_plural": "sections",
             },
         ),
         migrations.CreateModel(
-            name='Lot',
+            name="Lot",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('polygon', models.CharField(max_length=128)),
-                ('category', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE, to='cmis.category')),
-                ('section', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE, to='cmis.section')),
-                ('status', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE, to='cmis.status')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("polygon", models.CharField(max_length=128)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cmis.category"
+                    ),
+                ),
+                (
+                    "section",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cmis.section"
+                    ),
+                ),
+                (
+                    "status",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cmis.status"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'lot',
-                'verbose_name_plural': 'lots',
+                "verbose_name": "lot",
+                "verbose_name_plural": "lots",
             },
         ),
         migrations.CreateModel(
-            name='Grave',
+            name="Grave",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('deceased', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE, to='cmis.deceased')),
-                ('lot', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE, to='cmis.lot')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "deceased",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cmis.deceased"
+                    ),
+                ),
+                (
+                    "lot",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cmis.lot"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'grave',
-                'verbose_name_plural': 'graves',
+                "verbose_name": "grave",
+                "verbose_name_plural": "graves",
             },
         ),
     ]
