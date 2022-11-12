@@ -24,7 +24,8 @@ def cemetery(request):
         string = ""
         dict = ""
 
-        for lot in Lot.objects.filter(section__cemetery__name=request.GET["q"]):
+        for lot in Lot.objects.filter(
+                section__cemetery__name=request.GET["q"]):
 
             polygon = str(lot.polygon)
             pkl = str(lot.pk)
@@ -32,13 +33,8 @@ def cemetery(request):
 
             string += (
                 "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["
-                + polygon
-                + "]]}, 'properties': {'id_lot': "
-                + pkl
-                + ", 'status': '"
-                + status
-                + "'"
-            )
+                + polygon + "]]}, 'properties': {'id_lot': " + pkl +
+                ", 'status': '" + status + "'")
 
             if Grave.objects.filter(pk=pkl):
                 for grave in Grave.objects.filter(pk=pkl):
@@ -47,20 +43,16 @@ def cemetery(request):
                     fname = grave.deceased.first_name
                     lname = grave.deceased.last_name
 
-                    string += (
-                        ", 'id_deceased': "
-                        + pkd
-                        + ", 'name': '"
-                        + fname
-                        + " "
-                        + lname
-                        + "'}},"
-                    )
+                    string += (", 'id_deceased': " + pkd + ", 'name': '" +
+                               fname + " " + lname + "'}},")
 
             else:
                 string += "}},"
 
-        dict = {"type": "FeatureCollection", "features": ast.literal_eval(string)}
+        dict = {
+            "type": "FeatureCollection",
+            "features": ast.literal_eval(string)
+        }
         lot = json.dumps(dict)
 
     if Section.objects.filter(cemetery__name=request.GET["q"]):
@@ -76,15 +68,13 @@ def cemetery(request):
 
             string1 += (
                 "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["
-                + polygon
-                + "]]}, 'properties': {'id': '"
-                + pk
-                + "','name': '"
-                + name
-                + "'}},"
-            )
+                + polygon + "]]}, 'properties': {'id': '" + pk +
+                "','name': '" + name + "'}},")
 
-        dict1 = {"type": "FeatureCollection", "features": ast.literal_eval(string1)}
+        dict1 = {
+            "type": "FeatureCollection",
+            "features": ast.literal_eval(string1)
+        }
         section = json.dumps(dict1)
 
     center = ""
@@ -97,7 +87,12 @@ def cemetery(request):
     return render(
         request,
         "cmis/cemetery.html",
-        {"lot": lot, "section": section, "center": center, "zoom": zoom},
+        {
+            "lot": lot,
+            "section": section,
+            "center": center,
+            "zoom": zoom
+        },
     )
 
 
@@ -112,13 +107,11 @@ def search(request):
         section = request.POST.get("section")
         cemetery = request.POST.get("cemetery")
 
-        names = (
-            Q(deceased__first_name__iexact=first)
-            | Q(deceased__middle_name__iexact=middle)
-            | Q(deceased__last_name__iexact=last)
-            | Q(lot__section__name__iexact=section)
-            | Q(lot__section__cemetery__name__iexact=cemetery)
-        )
+        names = (Q(deceased__first_name__iexact=first)
+                 | Q(deceased__middle_name__iexact=middle)
+                 | Q(deceased__last_name__iexact=last)
+                 | Q(lot__section__name__iexact=section)
+                 | Q(lot__section__cemetery__name__iexact=cemetery))
 
         if birth == "" and death == "":
             filtered = names
@@ -127,11 +120,9 @@ def search(request):
         elif birth == "":
             filtered = names | Q(deceased__death_date__year=death)
         else:
-            filtered = (
-                names
-                | Q(deceased__birth_date__year=birth)
-                | Q(deceased__death_date__year=death)
-            )
+            filtered = (names
+                        | Q(deceased__birth_date__year=birth)
+                        | Q(deceased__death_date__year=death))
 
         return render(
             request,

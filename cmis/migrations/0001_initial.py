@@ -76,7 +76,9 @@ class Migration(migrations.Migration):
                     "description",
                     models.CharField(blank=True, max_length=128, null=True),
                 ),
-                ("image", models.ImageField(blank=True, null=True, upload_to="")),
+                ("image", models.ImageField(blank=True,
+                                            null=True,
+                                            upload_to="")),
             ],
             options={
                 "verbose_name": "deceased",
@@ -119,8 +121,8 @@ class Migration(migrations.Migration):
                 (
                     "cemetery",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="cmis.cemetery"
-                    ),
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cmis.cemetery"),
                 ),
             ],
             options={
@@ -144,20 +146,20 @@ class Migration(migrations.Migration):
                 (
                     "category",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="cmis.category"
-                    ),
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cmis.category"),
                 ),
                 (
                     "section",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="cmis.section"
-                    ),
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cmis.section"),
                 ),
                 (
                     "status",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="cmis.status"
-                    ),
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cmis.status"),
                 ),
             ],
             options={
@@ -180,14 +182,14 @@ class Migration(migrations.Migration):
                 (
                     "deceased",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="cmis.deceased"
-                    ),
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cmis.deceased"),
                 ),
                 (
                     "lot",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="cmis.lot"
-                    ),
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="cmis.lot"),
                 ),
             ],
             options={

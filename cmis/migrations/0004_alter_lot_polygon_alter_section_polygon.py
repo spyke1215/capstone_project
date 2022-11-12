@@ -6,7 +6,8 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("cmis", "0003_alter_category_options_alter_cemetery_options_and_more"),
+        ("cmis",
+         "0003_alter_category_options_alter_cemetery_options_and_more"),
     ]
 
     operations = [
