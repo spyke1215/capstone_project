@@ -1,118 +1,101 @@
 {% extends "cmis/layout.html" %}
 
 {% block title %}
-    Search - Deceased
+    Search
 {% endblock %}
 
 {% block masthead %}
-<div class="container text-black">
-  <div class="card">
-      <div class="card-body" style="font-weight: bold;">
-        <form method="POST">{% csrf_token %}
-            <h4 class="card-title">Search Deceased Information</h4>
-
-            <div class="row">
-                <div class="col-md-2">
-                    <p>First Name:</p>
-                </div>
-                <div class="col-md-2"><input name="first" type="text" style="margin-left: -18px;"></div>
-                
-                <div class="col-md-2">
-                    <p>Middle Name:</p>
-                </div>
-                <div class="col-md-2"><input name="middle" type="text" style="margin-left: -18px;"></div>
-                
-                <div class="col-md-2">
-                    <p>Last Name:</p>
-                </div>
-                <div class="col-md-2"><input name="last" type="text" style="margin-left: -18px;"></div>
+<div class="masthead">
+    <div class="container text-white d-flex h-100 align-items-center justify-content-center">
+        <form method="POST" class="bg-dark rounded row g-4 p-4 pb-5">{% csrf_token %}
+            <h3 class="font-weight-bold">Search Deceased Information</h3>
+            <div class="col-md-4">
+                <label for="inputFirstName" class="form-label">First Name</label>
+                <input name="first" class="form-control" id="inputFirstName" type="text">
             </div>
-
-            <div class="row">
-                <div class="col-md-2">
-                    <p>Year Born:&nbsp;</p>
-                </div>
-                <div class="col-md-2"><input name="birth" type="text" style="margin-left: -18px;"></div>
-               
-                <div class="col-md-2">
-                    <p>Year Died:</p>
-                </div>
-                <div class="col-md-2"><input name="death" type="text" style="margin-left: -18px;"></div>
-                
-                <div class="col-md-2">
-                    <p>Section:</p>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select form-select-sm" style="margin-left: -18px;" name="section">
-                        <option selected></option>
-                        {% for section in section %}
-                            <option value="{{ section.name }}">{{ section.name }}</option>
-                        {% endfor %}
-                      </select>
-                </div>
+            <div class="col-md-4">
+                <label for="inputMiddleName" class="form-label">Middle Name</label>
+                <input name="middle" class="form-control" id="inputMiddleName" type="text">
             </div>
-
-            <div class="row">
-                <div class="col-md-2">
-                    <p>Cemetery:</p>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select form-select-sm" style="margin-left: -18px;" name="cemetery">
-                        <option selected></option>
-                        {% for cemetery in cemetery %}
-                            <option value="{{ cemetery.name }}">{{ cemetery.name }}</option>
-                        {% endfor %}
-                      </select>
-                </div>
-                
-                <div class="col"><button class="btn btn-primary" type="submit" style="background: rgb(71,76,81);">Search&nbsp;<i class="fas fa-search"></i></button></div>
-            
+            <div class="col-md-4">
+                <label for="inputLastName" class="form-label">Last Name</label>
+                <input name="middle" class="form-control" id="inputLastName" type="text">
+            </div>
+            <div class="col-4">
+                <label for="inputYearBorn" class="form-label">Year Born</label>
+                <input name="middle" class="form-control" id="inputYearBorn" type="text">
+            </div>
+            <div class="col-4">
+                <label for="inputYearDied" class="form-label">Year Died</label>
+                <input name="middle" class="form-control" id="inputYearDied" type="text">
+            </div>
+            <div class="col-4">
+                <label for="inputSection" class="form-label">Section</label>
+                <select id="inputSection" class="form-select" name="section">
+                    <option selected></option>
+                    {% for section in section %}
+                        <option value="{{ section.name }}">{{ section.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-10">
+                <label for="inputCemetery" class="form-label">Cemetery</label>
+                <select id="inputCemetery" class="form-select" name="cemetery">
+                    <option selected></option>
+                    {% for cemetery in cemetery %}
+                        <option value="{{ cemetery.name }}">{{ cemetery.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">Search&nbsp;<i class="fas fa-search"></i></button>
             </div>
         </form>
-      </div>
-  </div>
-</div>
-<div class="container">
-    <table class="table table-hover" style="background-color: white;">
-        <thead>
-        <tr class="table-secondary">
-            <th scope="col">#</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Middle Name</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">Birth Date</th>
-            <th scope="col">Death Date</th>
-            <th scope="col">Section</th>
-            <th scope="col">Cemetery</th>
-        </tr>
-        </thead>
-        <tbody> 
-            {% for grave in grave %}
-            <form method="POST" id="form-id" action="{% url 'deceased' %}"> {% csrf_token %}
-                <tr id="table" style="cursor: pointer;">
-                    <input type="hidden" name="pk" value="{{ grave.id }}"/>
-                    <th scope="row">{{ grave.id }}</th>
-                    <td>{{ grave.deceased.first_name }}</td>
-                    <td>{{ grave.deceased.middle_name }}</td>
-                    <td>{{ grave.deceased.last_name }}</td>
-                    <td>{{ grave.deceased.birth_date }}</td>
-                    <td>{{ grave.deceased.death_date }}</td>
-                    <td>{{ grave.lot.section.name }}</td>
-                    <td>{{ grave.lot.section.cemetery.name }}</td>
+    </div>
+    <div class="container text-white d-flex align-items-center justify-content-center">
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Middle Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Birth Date</th>
+                    <th scope="col">Death Date</th>
+                    <th scope="col">Section</th>
+                    <th scope="col">Cemetery</th>
                 </tr>
-            </form>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="table-group-divider"> 
+                {% for grave in grave %}
+                <form method="POST" id="form-id" action="{% url 'deceased' %}"> {% csrf_token %}
+                    <tr id="table" style="cursor: pointer;">
+                        <input type="hidden" name="pk" value="{{ grave.id }}"/>
+                        <th scope="row">{{ grave.id }}</th>
+                        <td>{{ grave.deceased.first_name }}</td>
+                        <td>{{ grave.deceased.middle_name }}</td>
+                        <td>{{ grave.deceased.last_name }}</td>
+                        <td>{{ grave.deceased.birth_date }}</td>
+                        <td>{{ grave.deceased.death_date }}</td>
+                        <td>{{ grave.lot.section.name }}</td>
+                        <td>{{ grave.lot.section.cemetery.name }}</td>
+                    </tr>
+                </form>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<script>
-        
-    var form = document.getElementById("form-id");
+<!-- Footer-->
+<footer class="footer bg-black small text-center text-white-50">
+    <div class="container p-4 px-lg-5">Copyright &copy; Sepulcrum 2022</div>
+</footer>
 
+<script>        
+    var form = document.getElementById("form-id");
     document.getElementById("table").addEventListener("click", function () {
     form.submit();
     });
-    
 </script>
 {% endblock %}

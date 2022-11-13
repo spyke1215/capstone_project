@@ -5,19 +5,15 @@
 {% endblock%}
 
 {% block head %}
-<script src="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.js"></script>
-<link href="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.css" rel="stylesheet"/>
 <style>
     .filter-group {
-    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-    font-weight: 600;
     position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1;
+    bottom: 10px;
+    left: 10px;
+    z-index: 2;
     border-radius: 3px;
-    width: 120px;
     color: #fff;
+    width: 140px;
     }
      
     .filter-group input[type='checkbox']:first-child + label {
@@ -55,72 +51,83 @@
     content: '✔';
     margin-right: 5px;
     }
+
+    #mainNav .navbar-brand{
+        color: rgba(0, 0, 0);
+    }
+
+    #mainNav .nav-link{
+        color: rgba(0, 0, 0, 1);
+    }
+
+    #mainNav .nav-link:hover {
+        color: rgba(0, 0, 0, 0.75);
+      }
     </style>
 {% endblock %}
 
 {% block masthead %}
-<div class="justify-content-center d-flex" >
-<div id='map' style='width: 1600px; height: 750px; color: black;'></div>
-<nav id="filter-group" class="filter-group"></nav>
+<div class="masthead" >
+    <div class="masthead" id='map'></div>
+    <nav id="filter-group" class="filter-group"></nav>
 
     <script>
-
-        var zoomlevel = 'low';
-
-        var filterGroup = document.getElementById('filter-group');
-
-        var polygon = {
-            'id': 'polygons',
-            'type': 'fill',
-            'source': 'section', // reference the data source
-            'layout': {},
-            'paint': {
-                'fill-color': '#90EE90',
-                'fill-opacity': [
-                    'case',
-                    ['boolean', ['feature-state', 'hover'], false],
-                    1,
-                    0.5
-                ]
-            }
-        };
-
-        var outline = {
-            'id': 'outline',
-            'type': 'line',
-            'source': 'section',
-            'layout': {},
-            'paint': {
-                'line-color': '#5A5A5A', // orange outline
-                'line-width': 3
-            }
-        };
-
-        var section = {{ section|safe }};
-        var graves = {{ lot|safe }};
-
-        var popup = new maplibregl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
-
-        var layerIDs = []; 
-
-        // BOUNDERIES
-        var bounds = [
-        [122.90782362654943, 10.594244730858899], // [west, south]
-        [122.912640077032, 10.597304816176521]  // [east, north]
-        ];
-
         if (!maplibregl.supported()) {
             alert('Your browser does not support MapLibre GL');
         } else {
             const map = new maplibregl.Map({
                 container: 'map', // container id
-                style: "https://maps.geoapify.com/v1/styles/osm-liberty/style.json?apiKey=ddcc779eeaf8434091049673bfc21281",
+                style: "https://api.maptiler.com/maps/streets/style.json?key=pYak4IN292AL67yzijvU",
                 center: {{ center|safe }}, // starting position [lng, lat]
                 zoom: {{ zoom|safe }}, // starting zoom
             });
+
+            var zoomlevel = 'low';
+
+            var filterGroup = document.getElementById('filter-group');
+
+            var polygon = {
+                'id': 'polygons',
+                'type': 'fill',
+                'source': 'section', // reference the data source
+                'layout': {},
+                'paint': {
+                    'fill-color': '#90EE90',
+                    'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        1,
+                        0.5
+                    ]
+                }
+            };
+
+            var outline = {
+                'id': 'outline',
+                'type': 'line',
+                'source': 'section',
+                'layout': {},
+                'paint': {
+                    'line-color': '#5A5A5A', // orange outline
+                    'line-width': 3
+                }
+            };
+
+            var section = {{ section|safe }};
+            var graves = {{ lot|safe }};
+
+            var layerIDs = []; 
+
+            var popup = new maplibregl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+
+            // BOUNDERIES
+            var bounds = [
+            [122.90782362654943, 10.594244730858899], // [west, south]
+            [122.912640077032, 10.597304816176521]  // [east, north]
+            ];
 
             // Set the map's max bounds.
             map.setMaxBounds(map.getBounds());   
@@ -130,14 +137,15 @@
             map.setMinZoom(16); //min zoom
             
             // CONTROLS
-            map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
-            map.addControl(new maplibregl.FullscreenControl(), 'top-left'); //fullscreen controls   
+            map.addControl(new maplibregl.FullscreenControl(), 'bottom-right'); //fullscreen controls   
+            map.addControl(new maplibregl.NavigationControl(), 'bottom-right'); //navigation controls
             map.addControl(new maplibregl.GeolocateControl({ 
                 positionOptions: {
                     enableHighAccuracy: true
                 },
                 trackUserLocation: true
-            }), 'top-left'); //geolocation controls
+            }), 'bottom-right'); //geolocation controls
+           
 
             // Load the data
             map.on('load', function () {
@@ -182,6 +190,9 @@
                     map.getCanvas().style.cursor = '';
                     popup.remove();
                 });
+
+                //remove contributors
+                map.getContainer().querySelector('.maplibregl-ctrl-attrib').remove();
 
                 //change map on zoom
                 map.on('zoom', function () {
@@ -250,6 +261,8 @@
                                 label.setAttribute('for', layerID);
                                 label.textContent = status;
                                 filterGroup.appendChild(label);
+
+                                layerIDs.push(layerID);
                                 
                                 // When the checkbox changes, update the visibility of the layer.
                                 input.addEventListener('change', function (e) {
@@ -292,8 +305,6 @@
                                     map.getCanvas().style.cursor = '';
                                     popup.remove();
                                 });
-
-                                layerIDs.push(layerID);
                             }
                         });
                         zoomlevel = "high"
@@ -302,9 +313,10 @@
 
                         for (const layer of layerIDs) //remove layers
                         {
-                            console.log(layer);
                             map.removeLayer(layer);
                         }
+
+                        layerIDs = []; //reset layerIDs
 
                         const list = document.getElementById("filter-group"); //remove checkboxes
                         while (list.hasChildNodes()) {
