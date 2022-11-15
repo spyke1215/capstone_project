@@ -41,6 +41,8 @@ def cemetery(request):
         
         dict = {'type': 'FeatureCollection', 'features': ast.literal_eval(string)}
         lot = json.dumps(dict)
+    else:
+        lot = "null"
 
     if Section.objects.filter(cemetery__name=request.GET['q']):
 
@@ -57,7 +59,9 @@ def cemetery(request):
         
         dict1 = {'type': 'FeatureCollection', 'features': ast.literal_eval(string1)}
         section = json.dumps(dict1)
-    
+    else:
+        section = "null"
+
     center = ''
     zoom = ''
 

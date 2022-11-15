@@ -1,7 +1,7 @@
 {% extends "cmis/layout.html" %}
 
 {% block title %}
-    Search
+    Search |
 {% endblock %}
 
 {% block masthead %}
@@ -52,6 +52,7 @@
             </div>
         </form>
     </div>
+
     <div class="container text-white d-flex align-items-center justify-content-center">
         <table class="table table-dark table-hover">
             <thead>
@@ -69,7 +70,7 @@
             <tbody class="table-group-divider"> 
                 {% for grave in grave %}
                 <form method="POST" id="form-id" action="{% url 'deceased' %}"> {% csrf_token %}
-                    <tr id="table" style="cursor: pointer;">
+                    <tr class="pe-auto" id="table">
                         <input type="hidden" name="pk" value="{{ grave.id }}"/>
                         <th scope="row">{{ grave.id }}</th>
                         <td>{{ grave.deceased.first_name }}</td>

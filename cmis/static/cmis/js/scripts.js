@@ -9,6 +9,12 @@
 
 window.addEventListener('DOMContentLoaded', event => {
 
+    if (window.location.pathname == '/') {
+        document.getElementById("scrolldown").addEventListener("click", function(){
+            document.getElementById("cemeterySelect").scrollIntoView({behavior: "smooth"});
+        });
+    }
+
     // Navbar shrink function
     var navbarShrink = function () {
         const navbarCollapsible = document.body.querySelector('#mainNav');

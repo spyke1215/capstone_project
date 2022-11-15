@@ -17,7 +17,7 @@ class Cemetery(models.Model):
     name = models.CharField(max_length=32) #NAME OF CEMETERY
     address = models.CharField(max_length=64) #CEMETERY ADDRESS
     geolocation = models.CharField(max_length=64)
-    zoom = models.IntegerField() #ZOOM LEVEL
+    zoom = models.FloatField() #ZOOM LEVEL
 
     class Meta:
         verbose_name_plural = "cemeteries"

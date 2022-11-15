@@ -11,7 +11,7 @@ class DeceasedAdmin(admin.ModelAdmin):
 
 @admin.register(Cemetery)
 class CemeteryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'geolocation')
+    list_display = ('name', 'address', 'geolocation', 'zoom')
     search_fields = ('name', 'address', 'geolocation')
 
 @admin.register(Lot)
