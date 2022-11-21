@@ -70,6 +70,67 @@
         const section = {{ section|safe }};
         const graves = {{ lot|safe }};
 
+        function addCity() {
+            map.addSource('city', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': [
+                        [122.897895,10.596278],
+                        [122.934287,10.591722],
+                        [122.950939,10.586154],
+                        [122.988189,10.585141],
+                        [123.017200,10.619225],
+                        [123.021663,10.634410],
+                        [123.043292,10.632216],
+                        [123.077043,10.646409],
+                        [123.139527,10.659736],
+                        [123.075498,10.670701],
+                        [123.048532,10.686096],
+                        [123.013341,10.682722],
+                        [122.998578,10.700265],
+                        [122.948085,10.716314],
+                        [122.947944,10.704063],
+                        [122.951892,10.692424],
+                        [122.943138,10.678929],
+                        [122.932838,10.668976],
+                        [122.926315,10.655143],
+                        [122.922710,10.641815],
+                        [122.922538,10.635067],
+                        [122.923568,10.627812],
+                        [122.920993,10.622751],
+                        [122.918762,10.618870],
+                        [122.918075,10.615158],
+                        [122.916874,10.610771],
+                        [122.914470,10.606216],
+                        [122.912342,10.603922],
+                        [122.897922,10.598459],
+                        [122.897407,10.597932],
+                        [122.897472,10.597194],
+                        [122.897895,10.596278]
+                        ]
+                    }
+                }
+            });
+
+            map.addLayer({
+                'id': 'cityOutline',
+                'type': 'line',
+                'source': 'city',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': '#888',
+                    'line-width': 8
+                }
+        });
+        }
+
         function addGraves() {
             map.addSource('graves', {
                 'type': 'geojson',
@@ -257,9 +318,27 @@
                     return bounds.extend(coord);
                 }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
 
+                var id = e.features[0].properties['id_deceased'];
                 var name = e.features[0].properties.name;
+                var birth = e.features[0].properties.birth;
+                var death = e.features[0].properties.death;
+                var section = e.features[0].properties.section;
+
+                if (section == null){
+                    var html = '<h6 class="text-center"><strong><p>' +
+                        'Grave #' + id +
+                        '<br> Name: ' + name + 
+                        '<br> Birth: ' + birth +
+                        '<br> Death: ' + death + '</p></strong></h6>';    
+                }
+                else{
+                    var html = '<h6><strong>'
+                        + section + '</strong></h6>';
+                }
+                
+
                 popup.setLngLat(bounds.getCenter())
-                .setHTML("<h6><strong>"+name+"</strong></h6>") //!need more data
+                .setHTML(html)
                 .addTo(map);
             });
 
@@ -271,7 +350,7 @@
                 }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
 
                 map.fitBounds(bounds, {
-                    padding: 20
+                    padding: 5
                 });
 
                 if(map.getZoom() > 21.8)
@@ -311,7 +390,8 @@
         map.on('load', function () {
 
             addSections();
-            addGraves();            
+            addGraves();
+            addCity();
 
             showPopup('sectionPolygon');
 

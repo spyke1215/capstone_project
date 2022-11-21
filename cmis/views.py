@@ -4,13 +4,42 @@ from cmis.models import *
 from django.db.models import Q
 import json
 import ast
+import datetime
 
 # Create your views here.
 def menu(request):
     return render(request,'cmis/menu.html')
 
-def cemetery(request):
+def report(request):
 
+    lot = Lot.objects.all()
+
+    sections = Section.objects.filter(cemetery__name="Sacred Heart").count()
+    total_deceased = Deceased.objects.all().count()
+    total_lots = lot.count()
+    unavailable_lots = lot.filter(status__name="Unavailable").count()
+    available_lots = lot.filter(status__name="Vacant").count()
+    reserved_lots = lot.filter(status__name="Reserved").count()
+    occupied_lots = lot.filter(status__name="Occupied").count()
+    columbarium = lot.filter(category__name="Columbarium").count()
+    lawn = lot.filter(category__name="Lawn lot").count()
+    mausoleum = lot.filter(category__name="Mausoleum").count()
+
+    return render(request,'cmis/report.html',{
+        "total_deceased": total_deceased,
+        "total_lots": total_lots,
+        "unavailable_lots": unavailable_lots,
+        "vacant_lots": available_lots,
+        "reserved_lots": reserved_lots,
+        "occupied_lots": occupied_lots,
+        "sections": sections,
+        "columbarium": columbarium,
+        "lawn": lawn,
+        "mausoleum": mausoleum
+    })
+
+
+def cemetery(request):
     lot = ''
     section = ''
 
@@ -34,7 +63,12 @@ def cemetery(request):
                     fname = grave.deceased.first_name
                     lname = grave.deceased.last_name
 
-                    string += ", 'id_deceased': "+pkd+", 'name': '"+fname+" "+lname+"'}},"
+                    birth = datetime.datetime.strptime(str(grave.deceased.birth_date), '%Y-%m-%d').strftime('%#b %#d, %Y')
+                    death = datetime.datetime.strptime(str(grave.deceased.death_date), '%Y-%m-%d').strftime('%#b %#d, %Y')
+
+                    string += ", 'id_deceased': "+pkd+", 'name': '"+fname+" "+lname+"', 'birth': '"+birth+"', 'death': '"+death+"'}},"
+
+                    print(string)
 
             else:
                 string += "}},"
@@ -53,9 +87,9 @@ def cemetery(request):
 
             polygon = str(section.polygon)
             pk = str(section.pk)
-            name = section.name
+            section = section.name
 
-            string1 += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id': '"+pk+"','name': '"+name+"'}},"
+            string1 += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id': '"+pk+"','section': '"+section+"'}},"
         
         dict1 = {'type': 'FeatureCollection', 'features': ast.literal_eval(string1)}
         section = json.dumps(dict1)
