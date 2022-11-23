@@ -8,25 +8,27 @@
 // Scripts
 //
 
-window.addEventListener('DOMContentLoaded', event => {
-  if (window.location.pathname == '/') {
-    document.getElementById("scrolldown").addEventListener("click", function() {
-      document.getElementById("cemeterySelect").scrollIntoView({
-        behavior : "smooth"
+window.addEventListener("DOMContentLoaded", (event) => {
+  if (window.location.pathname == "/") {
+    document
+      .getElementById("scrolldown")
+      .addEventListener("click", function () {
+        document.getElementById("cemeterySelect").scrollIntoView({
+          behavior: "smooth",
+        });
       });
-    });
   }
 
   // Navbar shrink function
-  var navbarShrink = function() {
-    const navbarCollapsible = document.body.querySelector('#mainNav');
+  var navbarShrink = function () {
+    const navbarCollapsible = document.body.querySelector("#mainNav");
     if (!navbarCollapsible) {
       return;
     }
     if (window.scrollY === 0) {
-      navbarCollapsible.classList.remove('navbar-shrink')
+      navbarCollapsible.classList.remove("navbar-shrink");
     } else {
-      navbarCollapsible.classList.add('navbar-shrink')
+      navbarCollapsible.classList.add("navbar-shrink");
     }
   };
 
@@ -34,15 +36,16 @@ window.addEventListener('DOMContentLoaded', event => {
   navbarShrink();
 
   // Shrink the navbar when page is scrolled
-  document.addEventListener('scroll', navbarShrink);
+  document.addEventListener("scroll", navbarShrink);
 
   // Collapse responsive navbar when toggler is visible
-  const navbarToggler = document.body.querySelector('.navbar-toggler');
-  const responsiveNavItems =
-      [].slice.call(document.querySelectorAll('#navbarResponsive .nav-link'));
-  responsiveNavItems.map(function(responsiveNavItem) {
-    responsiveNavItem.addEventListener('click', () => {
-      if (window.getComputedStyle(navbarToggler).display !== 'none') {
+  const navbarToggler = document.body.querySelector(".navbar-toggler");
+  const responsiveNavItems = [].slice.call(
+    document.querySelectorAll("#navbarResponsive .nav-link")
+  );
+  responsiveNavItems.map(function (responsiveNavItem) {
+    responsiveNavItem.addEventListener("click", () => {
+      if (window.getComputedStyle(navbarToggler).display !== "none") {
         navbarToggler.click();
       }
     });
