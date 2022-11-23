@@ -17,7 +17,7 @@
         width: 80px;
         }
     }
-     
+
     .masthead {
         height: 100vh;
         padding: 0;
@@ -27,11 +27,11 @@
         #mainNav .navbar-brand{
         color: rgba(0, 0, 0);
         }
-    
+
         #mainNav .nav-link{
         color: rgba(0, 0, 0, 1);
         }
-    
+
         #mainNav .nav-link:hover {
         color: rgba(0, 0, 0, 0.75);
         }
@@ -42,7 +42,7 @@
 {% endblock %}
 
 {% block masthead %}
-<div class="masthead">    
+<div class="masthead">
     <div id='map' class="position-relative"></div>
     <div id="filter-group"></div>
 </div>
@@ -181,7 +181,7 @@
             });
         }
 
-        var layerIDs = []; 
+        var layerIDs = [];
 
         function hideSections() {
             map.setLayoutProperty('sectionPolygon', 'visibility', 'none');
@@ -225,7 +225,7 @@
             graves.features.forEach(function (feature) {
                 var status = feature.properties['status'];
                 var layerID = 'poi-' + status;
-                    
+
                 // Add a layer for this symbol type if it hasn't been added already.
                 if (!map.getLayer(layerID)) {
                     map.addLayer({
@@ -256,7 +256,7 @@
                     var div = document.createElement('div');
                     div.className = 'form-check';
                     filterGroup.appendChild(div);
-                    
+
                     // Add checkbox and label elements for the layer.
                     var input = document.createElement('input');
                     input.type = 'checkbox';
@@ -277,7 +277,7 @@
                     }
 
                     div.appendChild(input);
-    
+
                     var label = document.createElement('label');
                     label.className ="form-check-label";
                     label.setAttribute('for', layerID);
@@ -293,7 +293,7 @@
                     div.appendChild(label);
 
                     layerIDs.push(layerID);
-                    
+
                     // When the checkbox changes, update the visibility of the layer.
                     input.addEventListener('change', function (e) {
                         map.setLayoutProperty(layerID, 'visibility', e.target.checked ? 'visible' : 'none');
@@ -326,15 +326,15 @@
                 if (section == null){
                     var html = '<h6 class="text-center"><strong><p>' +
                         'Lot #' + id +
-                        '<br> Name: ' + name + 
+                        '<br> Name: ' + name +
                         '<br> Birth: ' + birth +
-                        '<br> Death: ' + death + '</p></strong></h6>';    
+                        '<br> Death: ' + death + '</p></strong></h6>';
                 }
                 else{
                     var html = '<h6><strong>'
                         + section + '</strong></h6>';
                 }
-                
+
 
                 popup.setLngLat(bounds.getCenter())
                 .setHTML(html)
@@ -363,11 +363,11 @@
                 popup.remove();
             });
         }
-        
+
         // CONTROLS
-        map.addControl(new maplibregl.FullscreenControl(), 'bottom-right'); //fullscreen controls   
+        map.addControl(new maplibregl.FullscreenControl(), 'bottom-right'); //fullscreen controls
         map.addControl(new maplibregl.NavigationControl(), 'bottom-right'); //navigation controls
-        map.addControl(new maplibregl.GeolocateControl({ 
+        map.addControl(new maplibregl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
             },
@@ -410,17 +410,17 @@
                 //console.log(map.getCenter());
 
                 if (map.getZoom() >= zoom + 1.5 && zoomlevel == 'low') {
-                    
+
                     hideSections();
-                    
+
                     showGraves();
-                    
+
                     zoomlevel = "high";
 
                 }else if (map.getZoom() < zoom + 1.5 && zoomlevel == 'high'){
 
                     hideGraves();
-                
+
                     showSections();
 
                     zoomlevel = "low";
@@ -442,11 +442,10 @@
                         zoom: zoom,
                         essential: true // this animation is considered essential with respect to prefers-reduced-motion
                     });
-                    }, 1000);                
+                    }, 1000);
             });
         });
-        
+
     }
 </script>
 {% endblock %}
-

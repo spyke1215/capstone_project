@@ -68,7 +68,7 @@
                     <th scope="col">Cemetery</th>
                 </tr>
             </thead>
-            <tbody class="table-group-divider"> 
+            <tbody class="table-group-divider">
                 {% for grave in grave %}
                 <form method="POST" id="form[{{ grave.id }}]" action="{% url 'deceased' %}"> {% csrf_token %}
                     <tr onclick="form[{{ grave.id }}].submit();" style="cursor: pointer;">
