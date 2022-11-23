@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cmis', '0004_alter_lot_polygon_alter_section_polygon'),
+        ("cmis", "0004_alter_lot_polygon_alter_section_polygon"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cemetery',
-            name='zoom',
+            model_name="cemetery",
+            name="zoom",
             field=models.FloatField(),
         ),
     ]
