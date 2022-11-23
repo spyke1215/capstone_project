@@ -1,331 +1,451 @@
 {% extends "cmis/layout.html" %}
 
 {% block title %}
-    Cemetery
-{% endblock%}
+    Cemetery |
+{% endblock %}
 
 {% block head %}
-<script src="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.js"></script>
-<link href="https://cdn.maptiler.com/maplibre-gl-js/v2.2.0-pre.2/maplibre-gl.css" rel="stylesheet"/>
 <style>
-    .filter-group {
-    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-    font-weight: 600;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1;
-    border-radius: 3px;
-    width: 120px;
-    color: #fff;
+    @media (max-width: 576px) {
+        .filter-group {
+        width: 60px;
+        }
     }
-     
-    .filter-group input[type='checkbox']:first-child + label {
-    border-radius: 3px 3px 0 0;
+
+    @media (max-width: 720px) {
+        .filter-group {
+        width: 80px;
+        }
     }
-     
-    .filter-group label:last-child {
-    border-radius: 0 0 3px 3px;
-    border: none;
+
+    .masthead {
+        height: 100vh;
+        padding: 0;
     }
-     
-    .filter-group input[type='checkbox'] {
-    display: none;
+
+    @media (min-width: 992px) {
+        #mainNav .navbar-brand{
+        color: rgba(0, 0, 0);
+        }
+
+        #mainNav .nav-link{
+        color: rgba(0, 0, 0, 1);
+        }
+
+        #mainNav .nav-link:hover {
+        color: rgba(0, 0, 0, 0.75);
+        }
     }
-     
-    .filter-group input[type='checkbox'] + label {
-    background-color: #3386c0;
-    display: block;
-    cursor: pointer;
-    padding: 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-    }
-     
-    .filter-group input[type='checkbox'] + label {
-    background-color: #3386c0;
-    text-transform: capitalize;
-    }
-     
-    .filter-group input[type='checkbox'] + label:hover,
-    .filter-group input[type='checkbox']:checked + label {
-    background-color: #4ea0da;
-    }
-     
-    .filter-group input[type='checkbox']:checked + label:before {
-    content: '✔';
-    margin-right: 5px;
-    }
-    </style>
+
+
+</style>
 {% endblock %}
 
 {% block masthead %}
-<div class="justify-content-center d-flex" >
-<div id='map' style='width: 1600px; height: 750px; color: black;'></div>
-<nav id="filter-group" class="filter-group"></nav>
-
-    <script>
-
-        var zoomlevel = 'low';
-
-        var filterGroup = document.getElementById('filter-group');
-
-        var polygon = {
-            'id': 'polygons',
-            'type': 'fill',
-            'source': 'section', // reference the data source
-            'layout': {},
-            'paint': {
-                'fill-color': '#90EE90',
-                'fill-opacity': [
-                    'case',
-                    ['boolean', ['feature-state', 'hover'], false],
-                    1,
-                    0.5
-                ]
-            }
-        };
-
-        var outline = {
-            'id': 'outline',
-            'type': 'line',
-            'source': 'section',
-            'layout': {},
-            'paint': {
-                'line-color': '#5A5A5A', // orange outline
-                'line-width': 3
-            }
-        };
-
-        var section = {{ section|safe }};
-        var graves = {{ lot|safe }};
-
-        var popup = new maplibregl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
-
-        var layerIDs = []; 
-
-        // BOUNDERIES
-        var bounds = [
-        [122.90782362654943, 10.594244730858899], // [west, south]
-        [122.912640077032, 10.597304816176521]  // [east, north]
-        ];
-
-        if (!maplibregl.supported()) {
-            alert('Your browser does not support MapLibre GL');
-        } else {
-            const map = new maplibregl.Map({
-                container: 'map', // container id
-                style: "https://maps.geoapify.com/v1/styles/osm-liberty/style.json?apiKey=ddcc779eeaf8434091049673bfc21281",
-                center: {{ center|safe }}, // starting position [lng, lat]
-                zoom: {{ zoom|safe }}, // starting zoom
-            });
-
-            // Set the map's max bounds.
-            map.setMaxBounds(map.getBounds());   
-            
-            // ZOOM
-            map.setMaxZoom(24); //max zoom
-            map.setMinZoom(16); //min zoom
-            
-            // CONTROLS
-            map.addControl(new maplibregl.NavigationControl(), 'top-left'); //navigation controls
-            map.addControl(new maplibregl.FullscreenControl(), 'top-left'); //fullscreen controls   
-            map.addControl(new maplibregl.GeolocateControl({ 
-                positionOptions: {
-                    enableHighAccuracy: true
-                },
-                trackUserLocation: true
-            }), 'top-left'); //geolocation controls
-
-            // Load the data
-            map.on('load', function () {
-                // sources
-                map.addSource('section', {
-                    'type': 'geojson',
-                    'data': section
-                });
-
-                map.addLayer(polygon);
-                map.addLayer(outline);
-
-                map.on('mouseenter', 'polygons', function (e) {
-                    map.getCanvas().style.cursor = 'pointer';
-                    var coordinates = e.features[0].geometry.coordinates[0];
-                    var bounds = coordinates.reduce(function(bounds, coord) {
-                        return bounds.extend(coord);
-                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
-    
-                    var name = e.features[0].properties.name;
-                    popup.setLngLat(bounds.getCenter())
-                    .setHTML("<h6><strong>"+name+"</strong></h6>") //!need more data
-                    .addTo(map);
-                });
-
-                map.on('click', 'polygons', function (e) {
-                    var coordinates = e.features[0].geometry.coordinates[0];
-                    var bounds = coordinates.reduce(function(bounds, coord) {
-                        return bounds.extend(coord);
-                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
-                    map.fitBounds(bounds, {
-                        padding: 20
-                    });
-    
-                    if(map.getZoom() > 23)
-                    {
-                        window.location.href = "deceased?q=" + e.features[0].properties.id_lot;
-                    }
-                });
-
-                map.on('mouseleave', 'polygons', function () {
-                    map.getCanvas().style.cursor = '';
-                    popup.remove();
-                });
-
-                //change map on zoom
-                map.on('zoom', function () {
-
-                    if (map.getZoom() >= 19.5 && zoomlevel == 'low') {
-                        
-                        map.removeLayer('outline');
-                        map.removeLayer('polygons');
-                        map.removeSource('section');
-                        
-                        map.addSource('graves', {
-                            'type': 'geojson',
-                            'data': graves
-                        });
-
-                        map.addLayer({
-                            'id': 'outline',
-                            'type': 'line',
-                            'source': 'graves',
-                            'layout': {},
-                            'paint': {
-                                'line-color': '#5A5A5A',
-                                'line-width': 3
-                            }
-                        });
-
-                        graves.features.forEach(function (feature) {
-                            var status = feature.properties['status'];
-                            var layerID = 'poi-' + status;
-                            
-                            // Add a layer for this symbol type if it hasn't been added already.
-                            if (!map.getLayer(layerID)) {
-                                map.addLayer({
-                                    'id': layerID,
-                                    'type': 'fill',
-                                    'source': 'graves',
-                                    'layout': {},
-                                    'paint':{
-                                        'fill-color':[
-                                            'match',
-                                            ['get', 'status'],
-                                            'Occupied', '#ff3838',
-                                            'Vacant', '#56f000',
-                                            'Reserved', '#2dccff',
-                                            'Unavailable', '#9ea7ad',
-                                            '#90EE90',
-                                        ],
-                                        'fill-opacity': [
-                                            'case',
-                                            ['boolean', ['feature-state', 'hover'], false],
-                                            1,
-                                            0.5
-                                        ]
-                                    },
-                                    'filter': ['==', 'status', status]
-                                });
-                                
-                                // Add checkbox and label elements for the layer.
-                                var input = document.createElement('input');
-                                input.type = 'checkbox';
-                                input.id = layerID;
-                                input.checked = true;
-                                filterGroup.appendChild(input);
-                
-                                var label = document.createElement('label');
-                                label.setAttribute('for', layerID);
-                                label.textContent = status;
-                                filterGroup.appendChild(label);
-                                
-                                // When the checkbox changes, update the visibility of the layer.
-                                input.addEventListener('change', function (e) {
-                                    map.setLayoutProperty(
-                                    layerID,
-                                    'visibility',
-                                    e.target.checked ? 'visible' : 'none'
-                                    );
-                                });
-
-                                map.on('mouseenter', layerID, function (e) {
-                                    map.getCanvas().style.cursor = 'pointer';
-                                    var coordinates = e.features[0].geometry.coordinates[0];
-                                    var bounds = coordinates.reduce(function(bounds, coord) {
-                                        return bounds.extend(coord);
-                                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
-                    
-                                    var name = e.features[0].properties.name;
-                                    popup.setLngLat(bounds.getCenter())
-                                    .setHTML("<h6><strong>"+name+"</strong></h6>") //!need more data
-                                    .addTo(map);
-                                });
-
-                                map.on('click', layerID, function (e) {
-                                    var coordinates = e.features[0].geometry.coordinates[0];
-                                    var bounds = coordinates.reduce(function(bounds, coord) {
-                                        return bounds.extend(coord);
-                                    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
-                                    map.fitBounds(bounds, {
-                                        padding: 20
-                                    });
-                    
-                                    if(map.getZoom() > 23)
-                                    {
-                                        window.location.href = "deceased?q=" + e.features[0].properties.id_lot;
-                                    }
-                                });
-
-                                map.on('mouseleave', layerID, function () {
-                                    map.getCanvas().style.cursor = '';
-                                    popup.remove();
-                                });
-
-                                layerIDs.push(layerID);
-                            }
-                        });
-                        zoomlevel = "high"
-
-                    }else if (map.getZoom() < 19.5 && zoomlevel == 'high'){
-
-                        for (const layer of layerIDs) //remove layers
-                        {
-                            console.log(layer);
-                            map.removeLayer(layer);
-                        }
-
-                        const list = document.getElementById("filter-group"); //remove checkboxes
-                        while (list.hasChildNodes()) {
-                            list.removeChild(list.firstChild);
-                        }
-                        map.removeLayer('outline');
-                        map.removeSource('graves');
-                    
-                        map.addSource('section', {
-                            'type': 'geojson',
-                            'data': section
-                        });
-                        map.addLayer(polygon);
-                        map.addLayer(outline);
-
-                        zoomlevel = "low"
-                    }
-                });
-            });
-        }
-    </script>
+<div class="masthead">
+    <div id='map' class="position-relative"></div>
+    <div id="filter-group"></div>
 </div>
 {% endblock %}
 
+{% block script %}
+<script>
+    if (!maplibregl.supported()) {
+        alert('Your browser does not support MapLibre GL');
+    } else {
+
+        var mobile = window.matchMedia("(max-width: 576px)");
+        var tablet = window.matchMedia("(max-width: 702px)");
+
+        const center = {{ center|safe }};
+        var zoom = {{ zoom|safe }};
+        const section = {{ section|safe }};
+        const graves = {{ lot|safe }};
+
+        const map = new maplibregl.Map({
+            container: 'map', // container id
+            style: "https://api.maptiler.com/maps/streets/style.json?key=pYak4IN292AL67yzijvU",
+            center: [122.97138148587594, 10.646087109024789], // starting position [lng, lat]
+            zoom: 12, // starting zoom
+        });
+
+        function addCity() {
+            map.addSource('city', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': [
+                        [122.897895,10.596278],
+                        [122.934287,10.591722],
+                        [122.950939,10.586154],
+                        [122.988189,10.585141],
+                        [123.017200,10.619225],
+                        [123.021663,10.634410],
+                        [123.043292,10.632216],
+                        [123.077043,10.646409],
+                        [123.139527,10.659736],
+                        [123.075498,10.670701],
+                        [123.048532,10.686096],
+                        [123.013341,10.682722],
+                        [122.998578,10.700265],
+                        [122.948085,10.716314],
+                        [122.947944,10.704063],
+                        [122.951892,10.692424],
+                        [122.943138,10.678929],
+                        [122.932838,10.668976],
+                        [122.926315,10.655143],
+                        [122.922710,10.641815],
+                        [122.922538,10.635067],
+                        [122.923568,10.627812],
+                        [122.920993,10.622751],
+                        [122.918762,10.618870],
+                        [122.918075,10.615158],
+                        [122.916874,10.610771],
+                        [122.914470,10.606216],
+                        [122.912342,10.603922],
+                        [122.897922,10.598459],
+                        [122.897407,10.597932],
+                        [122.897472,10.597194],
+                        [122.897895,10.596278]
+                        ]
+                    }
+                }
+            });
+
+            map.addLayer({
+                'id': 'cityOutline',
+                'type': 'line',
+                'source': 'city',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': '#888',
+                    'line-width': 8
+                }
+        });
+        }
+
+        function addGraves() {
+            map.addSource('graves', {
+                'type': 'geojson',
+                'data': graves
+            });
+
+            map.addLayer({
+                'id': 'graveOutline',
+                'type': 'line',
+                'source': 'graves',
+                'layout': {},
+                'paint': {
+                    'line-color': '#5A5A5A',
+                    'line-width': 3
+                }
+            });
+        }
+
+        function addSections() {
+            map.addSource('section', {
+                'type': 'geojson',
+                'data': section
+            });
+
+            map.addLayer({
+                'id': 'sectionPolygon',
+                'type': 'fill',
+                'source': 'section', // reference the data source
+                'layout': {},
+                'paint': {
+                    'fill-color': '#90EE90',
+                    'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        1,
+                        0.5
+                    ]
+                }
+            });
+            map.addLayer({
+                'id': 'sectionOutline',
+                'type': 'line',
+                'source': 'section',
+                'layout': {},
+                'paint': {
+                    'line-color': '#5A5A5A', // orange outline
+                    'line-width': 3
+                }
+            });
+        }
+
+        var layerIDs = [];
+
+        function hideSections() {
+            map.setLayoutProperty('sectionPolygon', 'visibility', 'none');
+            map.setLayoutProperty('sectionOutline', 'visibility', 'none');
+        }
+
+        function showSections() {
+            map.setLayoutProperty('sectionPolygon', 'visibility', 'visible');
+            map.setLayoutProperty('sectionOutline', 'visibility', 'visible');
+        }
+
+        function hideGraves() {
+            for (var layer of layerIDs) //remove layers
+            {
+                map.setLayoutProperty(layer, 'visibility', 'none');
+            }
+            map.setLayoutProperty('graveOutline', 'visibility', 'none');
+            filterGroup.style.display = "none";
+        }
+
+        function showGraves() {
+            for (var layer of layerIDs)
+            {
+                map.setLayoutProperty(layer, 'visibility', 'visible');
+            }
+            map.setLayoutProperty('graveOutline', 'visibility', 'visible');
+            filterGroup.style.display = "block";
+        }
+
+        var filterGroup = document.getElementById('filter-group');
+
+        function statusFilter(filterGroup) {
+            filterGroup.className = "rounded bg-white p-2 fw-bold position-absolute top-50 start-0 translate-middle-y";
+
+            var p = document.createElement('p');
+            p.className = "text-center mb-0 p-1";
+            p.textContent = "Status";
+
+            filterGroup.appendChild(p);
+
+            graves.features.forEach(function (feature) {
+                var status = feature.properties['status'];
+                var layerID = 'poi-' + status;
+
+                // Add a layer for this symbol type if it hasn't been added already.
+                if (!map.getLayer(layerID)) {
+                    map.addLayer({
+                        'id': layerID,
+                        'type': 'fill',
+                        'source': 'graves',
+                        'layout': {},
+                        'paint':{
+                            'fill-color':[
+                                'match',
+                                ['get', 'status'],
+                                'Occupied', '#ff3838',
+                                'Vacant', '#56f000',
+                                'Reserved', '#2dccff',
+                                'Unavailable', '#9ea7ad',
+                                '#90EE90',
+                            ],
+                            'fill-opacity': [
+                                'case',
+                                ['boolean', ['feature-state', 'hover'], false],
+                                1,
+                                0.5
+                            ]
+                        },
+                        'filter': ['==', 'status', status]
+                    });
+
+                    var div = document.createElement('div');
+                    div.className = 'form-check';
+                    filterGroup.appendChild(div);
+
+                    // Add checkbox and label elements for the layer.
+                    var input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.id = layerID;
+                    input.className = "form-check-input";
+                    input.checked = true;
+
+                    if (status == "Occupied") {
+                        input.style.backgroundColor = "#ff0000";
+                    } else if (status == "Reserved") {
+                        input.style.backgroundColor = "#0000ff";
+                    } else if (status == "Unavailable") {
+                        input.style.backgroundColor = "#5A5A5A";
+                    } else if (status == "Vacant") {
+                        input.style.backgroundColor = "#00ff00";
+                    } else {
+                        input.style.backgroundColor = "#90EE90";
+                    }
+
+                    div.appendChild(input);
+
+                    var label = document.createElement('label');
+                    label.className ="form-check-label";
+                    label.setAttribute('for', layerID);
+
+                    if (mobile.matches){
+                        label.textContent = status.slice(0, 1);
+                    }else if (tablet.matches){
+                        label.textContent = status.slice(0, 3);
+                    }else{
+                        label.textContent = status;
+                    }
+
+                    div.appendChild(label);
+
+                    layerIDs.push(layerID);
+
+                    // When the checkbox changes, update the visibility of the layer.
+                    input.addEventListener('change', function (e) {
+                        map.setLayoutProperty(layerID, 'visibility', e.target.checked ? 'visible' : 'none');
+                    });
+
+                    showPopup(layerID);
+                }
+            });
+        }
+
+        function showPopup(layerID) {
+            var popup = new maplibregl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+
+            map.on('mouseenter', layerID, function (e) {
+                map.getCanvas().style.cursor = 'pointer';
+                var coordinates = e.features[0].geometry.coordinates[0];
+                var bounds = coordinates.reduce(function(bounds, coord) {
+                    return bounds.extend(coord);
+                }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+
+                var id = e.features[0].properties['id_lot'];
+                var name = e.features[0].properties['name_0'];
+                var birth = e.features[0].properties['birth_0'];
+                var death = e.features[0].properties['death_0'];
+                var section = e.features[0].properties['section'];
+
+                if (section == null){
+                    var html = '<h6 class="text-center"><strong><p>' +
+                        'Lot #' + id +
+                        '<br> Name: ' + name +
+                        '<br> Birth: ' + birth +
+                        '<br> Death: ' + death + '</p></strong></h6>';
+                }
+                else{
+                    var html = '<h6><strong>'
+                        + section + '</strong></h6>';
+                }
+
+
+                popup.setLngLat(bounds.getCenter())
+                .setHTML(html)
+                .addTo(map);
+            });
+
+            map.on('click', layerID, function (e) {
+
+                var coordinates = e.features[0].geometry.coordinates[0];
+                var bounds = coordinates.reduce(function(bounds, coord) {
+                    return bounds.extend(coord);
+                }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+
+                map.fitBounds(bounds, {
+                    padding: 5
+                });
+
+                if(map.getZoom() > 21.8)
+                {
+                    window.location.href = "deceased?q=" + e.features[0].properties['id_lot'];
+                }
+            });
+
+            map.on('mouseleave', layerID, function () {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+            });
+        }
+
+        // CONTROLS
+        map.addControl(new maplibregl.FullscreenControl(), 'bottom-right'); //fullscreen controls
+        map.addControl(new maplibregl.NavigationControl(), 'bottom-right'); //navigation controls
+        map.addControl(new maplibregl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true
+        }), 'bottom-right'); //geolocation controls
+
+        map.setMaxZoom(23);
+
+        //remove contributors
+        map.getContainer().querySelector('.maplibregl-ctrl-attrib').remove();
+
+        if (mobile.matches) { // If media query matches
+            zoom -= 2
+        } else if (tablet.matches) { // If media query matches
+            zoom -= 1
+        }
+
+        // Load the data
+        map.on('load', function () {
+
+            addSections();
+            addGraves();
+            addCity();
+
+            showPopup('sectionPolygon');
+
+            if (graves != null)
+            {
+                statusFilter(filterGroup);
+            }
+
+            hideGraves();
+
+            var zoomlevel = 'low';
+
+            //change map on zoom
+            map.on('zoom', function () {
+
+                //console.log(map.getZoom());
+                //console.log(map.getCenter());
+
+                if (map.getZoom() >= zoom + 1.5 && zoomlevel == 'low') {
+
+                    hideSections();
+
+                    showGraves();
+
+                    zoomlevel = "high";
+
+                }else if (map.getZoom() < zoom + 1.5 && zoomlevel == 'high'){
+
+                    hideGraves();
+
+                    showSections();
+
+                    zoomlevel = "low";
+                }
+                //else if (map.getZoom() < zoom-0.5){
+                //    map.setMaxBounds(map.getBounds()); //lock map
+                //}
+                //else if (map.getZoom() == zoom){
+                //   map.setMinZoom(zoom-0.5);
+                //}
+            });
+
+            //if done loading
+            map.once('load', function () {
+
+                setTimeout(function () {
+                    map.flyTo({
+                        center: center,
+                        zoom: zoom,
+                        essential: true // this animation is considered essential with respect to prefers-reduced-motion
+                    });
+                    }, 1000);
+            });
+        });
+
+    }
+</script>
+{% endblock %}
