@@ -54,7 +54,7 @@ class Lot(models.Model):
         verbose_name_plural = "lots"
     
     def __str__(self):
-        return f"{self.pk} | {self.category} | {self.section}"
+        return f"{self.pk} | {self.category} | {self.section} | {self.status}"
 
 class Deceased(models.Model):
     first_name = models.CharField(max_length=32) #FIRST NAME
@@ -79,4 +79,4 @@ class Grave(models.Model):
         verbose_name_plural = "graves"
 
     def __str__(self):
-        return f"{self.pk}"
+        return f"{self.pk} | {self.lot} | {self.deceased}"

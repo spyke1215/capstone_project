@@ -38,27 +38,31 @@ def report(request):
         "mausoleum": mausoleum
     })
 
-
 def cemetery(request):
     lot = ''
     section = ''
 
-    if Lot.objects.filter(section__cemetery__name=request.GET['q']):
+    lotFilter = Lot.objects.filter(section__cemetery__name=request.GET['q'])
+    sectionFilter = Section.objects.filter(cemetery__name=request.GET['q'])
+
+    if lotFilter:
 
         string = ''
         dict = ''
 
-        for lot in Lot.objects.filter(section__cemetery__name=request.GET['q']):
+        for lot in lotFilter:
 
             polygon = str(lot.polygon)
             pkl = str(lot.pk)
             status = str(lot.status.name)
 
             string += "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+polygon+"]]}, 'properties': {'id_lot': "+pkl+", 'status': '"+status+"'"
+            
+            graveFilter = Grave.objects.filter(Q(lot__id=pkl) & Q(lot__status=2))
 
-            if Grave.objects.filter(pk=pkl) :
-                for grave in Grave.objects.filter(pk=pkl):
-                
+            if graveFilter:
+                ctr = 0
+                for grave in graveFilter:
                     pkd = str(grave.deceased.pk)
                     fname = grave.deceased.first_name
                     lname = grave.deceased.last_name
@@ -66,10 +70,10 @@ def cemetery(request):
                     birth = datetime.datetime.strptime(str(grave.deceased.birth_date), '%Y-%m-%d').strftime('%#b %#d, %Y')
                     death = datetime.datetime.strptime(str(grave.deceased.death_date), '%Y-%m-%d').strftime('%#b %#d, %Y')
 
-                    string += ", 'id_deceased': "+pkd+", 'name': '"+fname+" "+lname+"', 'birth': '"+birth+"', 'death': '"+death+"'}},"
-
-                    print(string)
-
+                    string += ", 'id_deceased_"+str(ctr)+"': "+pkd+", 'name_"+str(ctr)+"': '"+fname+" "+lname+"', 'birth_"+str(ctr)+"': '"+birth+"', 'death_"+str(ctr)+"': '"+death+"'"
+                    
+                    ctr += 1
+                string += ", 'layer': "+str(ctr)+"}},"
             else:
                 string += "}},"
         
@@ -78,12 +82,12 @@ def cemetery(request):
     else:
         lot = "null"
 
-    if Section.objects.filter(cemetery__name=request.GET['q']):
+    if sectionFilter:
 
         string1 = ''
         dict1 = ''
 
-        for section in Section.objects.filter(cemetery__name=request.GET['q']):
+        for section in sectionFilter:
 
             polygon = str(section.polygon)
             pk = str(section.pk)
@@ -120,6 +124,12 @@ def search(request):
         death = request.POST.get("death")
         section = request.POST.get("section")
         cemetery = request.POST.get("cemetery")
+
+        print(first)
+        print(middle)
+        print(last)
+        print(birth)
+        print(death)
             
         names = Q(deceased__first_name__iexact=first) | Q(deceased__middle_name__iexact=middle) | Q(deceased__last_name__iexact=last) | Q(lot__section__name__iexact=section) | Q(lot__section__cemetery__name__iexact=cemetery)
 
@@ -148,13 +158,15 @@ def search(request):
 def deceased(request):
 
     if request.method == "POST":
-    
+        lot = request.POST.get("pk")
+        print(lot)
         return render(request,'cmis/deceased.html', {
-            "grave": Grave.objects.get(pk=request.POST.get("pk"))
+            "grave": Grave.objects.filter(lot__id=lot)
         })
 
     else:
-
+        lot = request.GET['q']
+        print(lot)
         return render(request,'cmis/deceased.html', {
-            "grave": Grave.objects.get(pk=request.GET['q'])
+            "grave": Grave.objects.filter(lot__id=lot)
         })

@@ -59,6 +59,8 @@
 
         const center = {{ center|safe }};
         var zoom = {{ zoom|safe }};
+        const section = {{ section|safe }};
+        const graves = {{ lot|safe }};
 
         const map = new maplibregl.Map({
             container: 'map', // container id
@@ -66,9 +68,6 @@
             center: [122.97138148587594, 10.646087109024789], // starting position [lng, lat]
             zoom: 12, // starting zoom
         });
-
-        const section = {{ section|safe }};
-        const graves = {{ lot|safe }};
 
         function addCity() {
             map.addSource('city', {
@@ -318,15 +317,15 @@
                     return bounds.extend(coord);
                 }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
 
-                var id = e.features[0].properties['id_deceased'];
-                var name = e.features[0].properties.name;
-                var birth = e.features[0].properties.birth;
-                var death = e.features[0].properties.death;
-                var section = e.features[0].properties.section;
+                var id = e.features[0].properties['id_lot'];
+                var name = e.features[0].properties['name_0'];
+                var birth = e.features[0].properties['birth_0'];
+                var death = e.features[0].properties['death_0'];
+                var section = e.features[0].properties['section'];
 
                 if (section == null){
                     var html = '<h6 class="text-center"><strong><p>' +
-                        'Grave #' + id +
+                        'Lot #' + id +
                         '<br> Name: ' + name + 
                         '<br> Birth: ' + birth +
                         '<br> Death: ' + death + '</p></strong></h6>';    
@@ -355,7 +354,7 @@
 
                 if(map.getZoom() > 21.8)
                 {
-                    window.location.href = "deceased?q=" + e.features[0].properties.id_lot;
+                    window.location.href = "deceased?q=" + e.features[0].properties['id_lot'];
                 }
             });
 

@@ -6,8 +6,8 @@
 
 {% block masthead %}
 <div class="masthead">
-    <div class="container text-white d-flex h-100 align-items-center justify-content-center">
-        <form method="POST" class="bg-dark rounded row g-4 p-4 pb-5">{% csrf_token %}
+    <div class="container text-white d-flex align-items-center justify-content-center" style="padding-top: 100px">
+        <form method="POST" class="bg-dark rounded row g-4 p-3 pb-5">{% csrf_token %}
             <h3 class="font-weight-bold">Search Information</h3>
             <div class="col-md-4">
                 <label for="inputFirstName" class="form-label">First Name</label>
@@ -19,15 +19,15 @@
             </div>
             <div class="col-md-4">
                 <label for="inputLastName" class="form-label">Last Name</label>
-                <input name="middle" class="form-control" id="inputLastName" type="text">
+                <input name="last" class="form-control" id="inputLastName" type="text">
             </div>
             <div class="col-4">
                 <label for="inputYearBorn" class="form-label">Year Born</label>
-                <input name="middle" class="form-control" id="inputYearBorn" type="text">
+                <input name="birth" class="form-control" id="inputYearBorn" type="text">
             </div>
             <div class="col-4">
                 <label for="inputYearDied" class="form-label">Year Died</label>
-                <input name="middle" class="form-control" id="inputYearDied" type="text">
+                <input name="death" class="form-control" id="inputYearDied" type="text">
             </div>
             <div class="col-4">
                 <label for="inputSection" class="form-label">Section</label>
@@ -53,7 +53,7 @@
         </form>
     </div>
 
-    <div class="container text-white d-flex align-items-center justify-content-center">
+    <div class="container text-white align-items-center justify-content-center" style="padding-top: 50px">
         <table class="table table-dark table-hover">
             <thead>
                 <tr>
@@ -64,14 +64,15 @@
                     <th scope="col">Birth Date</th>
                     <th scope="col">Death Date</th>
                     <th scope="col">Section</th>
+                    <th scope="col">Lot</th>
                     <th scope="col">Cemetery</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider"> 
                 {% for grave in grave %}
-                <form method="POST" id="form-id" action="{% url 'deceased' %}"> {% csrf_token %}
-                    <tr class="pe-auto" id="table">
-                        <input type="hidden" name="pk" value="{{ grave.id }}"/>
+                <form method="POST" id="form[{{ grave.id }}]" action="{% url 'deceased' %}"> {% csrf_token %}
+                    <tr onclick="form[{{ grave.id }}].submit();" style="cursor: pointer;">
+                        <input type="hidden" name="pk" value="{{ grave.lot.id }}"/>
                         <th scope="row">{{ grave.id }}</th>
                         <td>{{ grave.deceased.first_name }}</td>
                         <td>{{ grave.deceased.middle_name }}</td>
@@ -79,6 +80,7 @@
                         <td>{{ grave.deceased.birth_date }}</td>
                         <td>{{ grave.deceased.death_date }}</td>
                         <td>{{ grave.lot.section.name }}</td>
+                        <td>{{ grave.lot.id }}</td>
                         <td>{{ grave.lot.section.cemetery.name }}</td>
                     </tr>
                 </form>
@@ -90,13 +92,14 @@
 
 <!-- Footer-->
 <footer class="footer bg-black small text-center text-white-50">
-    <div class="container p-4 px-lg-5">Copyright &copy; Sepulcrum 2022</div>
+    <div class="container px-4 px-lg-5">Copyright &copy; Sepulcrum 2022</div>
 </footer>
 
-<script>        
-    var form = document.getElementById("form-id");
-    document.getElementById("table").addEventListener("click", function () {
-    form.submit();
-    });
+<script>
+    const form = [];
+    {% for grave in grave %}
+        form[{{ grave.id }}] = document.getElementById("form["+{{ grave.id }}+"]");
+    {% endfor %}
 </script>
+
 {% endblock %}
