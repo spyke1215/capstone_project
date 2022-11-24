@@ -214,7 +214,7 @@ def search(request):
 def deceased(request):
 
     if request.method == "POST":
-        grave = Grave.objects.get(Q(pk=request.POST.get("pk")))
+        grave = Grave.objects.get(lot__id=request.POST.get("pk"))
 
         strip = re.sub(r"[\([{})\]]", "", grave.lot.polygon.strip("[]")).split(",", 2)
         str(strip.pop(2))
