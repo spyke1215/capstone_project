@@ -7,6 +7,11 @@ from django.db.models import Q
 from django.shortcuts import render
 
 from cmis.models import *
+from django.db.models import Q
+import json
+import ast
+import datetime
+import re
 
 # Create your views here.
 
@@ -205,17 +210,36 @@ def search(request):
             },
         )
 
-
 def deceased(request):
 
     if request.method == "POST":
-        lot = request.POST.get("pk")
-        print(lot)
-        return render(request, "cmis/deceased.html",
-                      {"grave": Grave.objects.filter(lot__id=lot)})
+        
+        strip = geoloc(Lot.objects.filter(pk=request.POST.get("pk")))
+
+        return render(request,'cmis/deceased.html', {
+            "grave": Grave.objects.filter(lot__id=request.POST.get("pk")),
+            "coords": strip,
+        })
 
     else:
-        lot = request.GET["q"]
-        print(lot)
-        return render(request, "cmis/deceased.html",
-                      {"grave": Grave.objects.filter(lot__id=lot)})
+        strip = geoloc(Lot.objects.filter(pk=request.GET['q']))
+        
+        return render(request,'cmis/deceased.html', {
+            "grave": Grave.objects.filter(lot__id=request.GET['q']),
+            "coords": strip,
+        })
+
+def geoloc(filter):
+
+    grave = filter
+    strip = ""
+    for grave in grave:
+
+        strip = re.sub(r"[\([{})\]]", "", str(grave.polygon)).split(",", 2)
+        str(strip.pop(2))
+        strip = strip[1]+","+strip[0]
+        strip = ''.join(strip.split())
+        print(strip)
+
+    return strip
+    
