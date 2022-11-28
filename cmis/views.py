@@ -210,24 +210,26 @@ def search(request):
             },
         )
 
+
 def deceased(request):
 
     if request.method == "POST":
-        
+
         strip = geoloc(Lot.objects.filter(pk=request.POST.get("pk")))
 
-        return render(request,'cmis/deceased.html', {
+        return render(request, 'cmis/deceased.html', {
             "grave": Grave.objects.filter(lot__id=request.POST.get("pk")),
             "coords": strip,
         })
 
     else:
         strip = geoloc(Lot.objects.filter(pk=request.GET['q']))
-        
-        return render(request,'cmis/deceased.html', {
+
+        return render(request, 'cmis/deceased.html', {
             "grave": Grave.objects.filter(lot__id=request.GET['q']),
             "coords": strip,
         })
+
 
 def geoloc(filter):
 
@@ -242,4 +244,3 @@ def geoloc(filter):
         print(strip)
 
     return strip
-    
