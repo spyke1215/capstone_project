@@ -63,9 +63,9 @@
                     <th scope="col">Last Name</th>
                     <th scope="col">Birth Date</th>
                     <th scope="col">Death Date</th>
+                    <th scope="col">Cemetery</th>
                     <th scope="col">Section</th>
                     <th scope="col">Lot</th>
-                    <th scope="col">Cemetery</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider">
@@ -79,9 +79,9 @@
                         <td>{{ grave.deceased.last_name }}</td>
                         <td>{{ grave.deceased.birth_date }}</td>
                         <td>{{ grave.deceased.death_date }}</td>
+                        <td>{{ grave.lot.section.cemetery.name }}</td>
                         <td>{{ grave.lot.section.name }}</td>
                         <td>{{ grave.lot.id }}</td>
-                        <td>{{ grave.lot.section.cemetery.name }}</td>
                     </tr>
                 </form>
                 {% endfor %}

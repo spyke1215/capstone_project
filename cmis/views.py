@@ -70,14 +70,14 @@ def cemetery(request):
             polygon = str(lot.polygon)
             pkl = str(lot.pk)
             status = str(lot.status.name)
+            category = lot.category.name
+            price = str(lot.category.price)
+            layers = str(lot.category.max_layers)
+            section = lot.section.name
 
-            string += (
-                "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["
-                + polygon + "]]}, 'properties': {'id_lot': " + pkl +
-                ", 'status': '" + status + "'")
+            string += ("{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+ polygon + "]]}, 'properties': {'id_lot': " + pkl +" , 'section': '" + section + "' , 'status': '" + status + "' , 'category': '"+ category + "', 'price': '" + price + "', 'layers': '" + layers + "'")
 
-            graveFilter = Grave.objects.filter(
-                Q(lot__id=pkl) & Q(lot__status=2))
+            graveFilter = Grave.objects.filter(lot__id=pkl)
 
             if graveFilter:
                 ctr = 0
@@ -94,13 +94,13 @@ def cemetery(request):
                         "%Y-%m-%d").strftime("%#b %#d, %Y")
 
                     string += (", 'id_deceased_" + str(ctr) + "': " + pkd +
-                               ", 'name_" + str(ctr) + "': '" + fname + " " +
-                               lname + "', 'birth_" + str(ctr) + "': '" +
-                               birth + "', 'death_" + str(ctr) + "': '" +
-                               death + "'")
-
+                        ", 'name_" + str(ctr) + "': '" + fname + " " +
+                        lname + "', 'birth_" + str(ctr) + "': '" +
+                        birth + "', 'death_" + str(ctr) + "': '" +
+                        death + "'")
+                                
                     ctr += 1
-                string += ", 'layer': " + str(ctr) + "}},"
+                string += "}},"
             else:
                 string += "}},"
 
@@ -124,9 +124,7 @@ def cemetery(request):
             section = section.name
 
             string1 += (
-                "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["
-                + polygon + "]]}, 'properties': {'id': '" + pk +
-                "','section': '" + section + "'}},")
+                "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+ polygon + "]]}, 'properties': {'id': '" + pk +"','sections': '" + section + "'}},")
 
         dict1 = {
             "type": "FeatureCollection",

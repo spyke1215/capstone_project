@@ -169,28 +169,16 @@
                     ]
                 }
             });
-            map.addLayer({
-                'id': 'sectionOutline',
-                'type': 'line',
-                'source': 'section',
-                'layout': {},
-                'paint': {
-                    'line-color': '#5A5A5A', // orange outline
-                    'line-width': 3
-                }
-            });
         }
 
         var layerIDs = [];
 
         function hideSections() {
             map.setLayoutProperty('sectionPolygon', 'visibility', 'none');
-            map.setLayoutProperty('sectionOutline', 'visibility', 'none');
         }
 
         function showSections() {
             map.setLayoutProperty('sectionPolygon', 'visibility', 'visible');
-            map.setLayoutProperty('sectionOutline', 'visibility', 'visible');
         }
 
         function hideGraves() {
@@ -283,7 +271,7 @@
                     label.setAttribute('for', layerID);
 
                     if (mobile.matches){
-                        label.textContent = status.slice(0, 1);
+                        label.textContent = status.slice(0, 3);
                     }else if (tablet.matches){
                         label.textContent = status.slice(0, 3);
                     }else{
@@ -322,17 +310,45 @@
                 var birth = e.features[0].properties['birth_0'];
                 var death = e.features[0].properties['death_0'];
                 var section = e.features[0].properties['section'];
+                var sections = e.features[0].properties['sections'];
+                var status = e.features[0].properties['status'];
+                var category = e.features[0].properties['category'];
+                var price = e.features[0].properties['price'];
+                var layers = e.features[0].properties['layers'];
+                var vacant = e.features[0].properties['vacant'];
 
-                if (section == null){
+                if (sections == null){
+                    if (layerID == 'poi-Occupied'){
+                        if (name == null){
+                            var html = '<h6 class="text-center"><strong><p>' +
+                                'Lot: '+ section + id +' ('+ status +') </p></strong></h6>';
+                        }
+                        else {
+                            var html = '<h6 class="text-center"><strong><p>' +
+                                'Lot: '+ section + id +' ('+ status +')' +
+                                '<br> Name: ' + name +
+                                '<br> Birth: ' + birth +
+                                '<br> Death: ' + death + '</p></strong></h6>';
+                        }                     
+                    }
+                    else if (layerID == 'poi-Reserved'){
                     var html = '<h6 class="text-center"><strong><p>' +
-                        'Lot #' + id +
-                        '<br> Name: ' + name +
-                        '<br> Birth: ' + birth +
-                        '<br> Death: ' + death + '</p></strong></h6>';
+                        'Lot: '+ section + id +' ('+ status +') </p></strong></h6>';
+                    }
+                    else if (layerID == 'poi-Unavailable'){
+                    var html = '<h6 class="text-center"><strong><p>' +
+                        'Lot: '+ section + id +' ('+ status +') </p></strong></h6>';
+                    }
+                    else if (layerID == 'poi-Vacant'){
+                    var html = '<h6 class="text-center"><strong><p>' +
+                        'Lot: '+ section + id +' ('+ status +')' +
+                        '<br> Category: '+ category + 
+                        '<br> Price: ₱'+ price + 
+                        '<br> Maximum layers: '+ layers + '</p></strong></h6>';
+                    }
                 }
                 else{
-                    var html = '<h6><strong>'
-                        + section + '</strong></h6>';
+                    var html = '<h6><strong> Section '+ sections + '</strong></h6>';
                 }
 
 
@@ -389,6 +405,16 @@
         map.on('load', function () {
 
             addSections();
+            map.addLayer({
+                'id': 'sectionOutline',
+                'type': 'line',
+                'source': 'section',
+                'layout': {},
+                'paint': {
+                    'line-color': '#5A5A5A', // orange outline
+                    'line-width': 3
+                }
+            });
             addGraves();
             addCity();
 
