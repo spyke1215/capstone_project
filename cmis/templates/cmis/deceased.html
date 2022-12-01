@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block masthead %}
-<header class="masthead">
+<header class="masthead" style="padding-bottom: 100px">
+    {% for grave in grave %}
     <div class="container d-flex align-items-center justify-content-center" style="padding-top: 100px">
         <div class="bg-dark border rounded border-0 border-dark overflow-hidden">
-            {% for grave in grave %}
             <div class="row g-0">
                 <div class="col-md-6">
                     <div class="text-white p-4 p-md-5">
@@ -24,9 +24,7 @@
                                     <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z"/>
                                 </svg>
                             </a>
-                            
                             <a class="btn btn-light btn-lg fw-bold" role="button" href=https://maps.google.com/maps?q={{coords}}>Go to Location&nbsp;
-                            
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-arrow-return-right">
                                     <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5z"/>
                                 </svg>
@@ -42,12 +40,11 @@
                     {% endif %}
                 </div>
             </div>
-            {% endfor %}
         </div>
     </div>
-
+{% endfor %}
+    <footer class="footer bg-black small text-center text-white-50">
+        <div class="container px-4 px-lg-5">Copyright &copy; Sepulcrum 2022</div>
+    </footer>
 </header>
-<footer class="footer bg-black small text-center text-white-50">
-    <div class="container px-4 px-lg-5">Copyright &copy; Sepulcrum 2022</div>
-</footer>
 {% endblock %}

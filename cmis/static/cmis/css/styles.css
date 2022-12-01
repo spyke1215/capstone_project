@@ -11712,3 +11712,15 @@ a {
 {
 	background-color: #555;
 }
+
+@media (max-width: 768px) {
+  .tablet {
+      display: none;
+  }
+}
+
+@media (max-width: 415px) {
+  .mobile {
+      display: none;
+  }
+}

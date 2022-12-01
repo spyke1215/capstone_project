@@ -7,5 +7,6 @@ urlpatterns = [
     path("cemetery", views.cemetery, name="cemetery"),
     path("deceased", views.deceased, name="deceased"),
     path("search", views.search, name="search"),
+    path("searchlot", views.searchlot, name="searchlot"),
     path("report", views.report, name="report"),
 ]

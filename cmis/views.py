@@ -164,12 +164,6 @@ def search(request):
         section = request.POST.get("section")
         cemetery = request.POST.get("cemetery")
 
-        print(first)
-        print(middle)
-        print(last)
-        print(birth)
-        print(death)
-
         names = (Q(deceased__first_name__iexact=first)
                  | Q(deceased__middle_name__iexact=middle)
                  | Q(deceased__last_name__iexact=last)
@@ -205,6 +199,42 @@ def search(request):
                 "grave": Grave.objects.all(),
                 "cemetery": Cemetery.objects.all(),
                 "section": Section.objects.all(),
+            },
+        )
+
+def searchlot(request):
+    if request.method == "POST":
+
+        category = request.POST.get("category")
+        section = request.POST.get("section")
+        status = request.POST.get("status")
+        layers = request.POST.get("layers")
+        cemetery = request.POST.get("cemetery")
+
+        filtered = (Q(category__name__iexact=category) | Q(section__name__iexact=section) | Q(status__name__iexact=status) | Q(category__max_layers__iexact=layers) | Q(section__cemetery__name__iexact=cemetery))
+
+        return render(
+            request,
+            "cmis/searchlot.html",
+            {
+                "lot": Lot.objects.filter(filtered),
+                "cemetery": Cemetery.objects.all(),
+                "section": Section.objects.all(),
+                "category": Category.objects.all(),
+                "status": Status.objects.all(),
+            },
+        )
+
+    else:
+        return render(
+            request,
+            "cmis/searchlot.html",
+            {
+                "lot": Lot.objects.all(),
+                "cemetery": Cemetery.objects.all(),
+                "section": Section.objects.all(),
+                "category": Category.objects.all(),
+                "status": Status.objects.all(),
             },
         )
 
