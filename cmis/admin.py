@@ -20,8 +20,8 @@ class DeceasedAdmin(admin.ModelAdmin):
 
 @admin.register(Cemetery)
 class CemeteryAdmin(admin.ModelAdmin):
-    list_display = ("name", "address", "geolocation", "zoom")
-    search_fields = ("name", "address", "geolocation")
+    list_display = ("id", "name", "address", "geolocation", "zoom")
+    search_fields = ("id", "name", "address", "geolocation")
 
 
 @admin.register(Lot)
@@ -34,8 +34,8 @@ class LotAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "max_layers", "price")
-    search_fields = ("name", "max_layers", "price")
+    list_display = ("id", "name", "max_layers", "price")
+    search_fields = ("id", "name", "max_layers", "price")
 
 
 @admin.register(Status)
@@ -49,11 +49,11 @@ class StatusAdmin(admin.ModelAdmin):
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ("name", "cemetery")
-    search_fields = ("name", "cemetery")
+    list_display = ("id", "name", "cemetery")
+    search_fields = ("id", "name", "cemetery")
 
 
 @admin.register(Grave)
 class GraveAdmin(admin.ModelAdmin):
-    list_display = ("lot", "deceased")
-    search_fields = ("lot", "deceased")
+    list_display = ("id", "lot", "deceased")
+    search_fields = ("id", "lot", "deceased")
