@@ -7,11 +7,6 @@ from django.db.models import Q
 from django.shortcuts import render
 
 from cmis.models import *
-from django.db.models import Q
-import json
-import ast
-import datetime
-import re
 
 # Create your views here.
 
