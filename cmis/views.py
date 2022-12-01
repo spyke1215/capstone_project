@@ -1,17 +1,13 @@
 import ast
 import datetime
 import json
+import re
 from hashlib import blake2b
 
 from django.db.models import Q
 from django.shortcuts import render
 
 from cmis.models import *
-from django.db.models import Q
-import json
-import ast
-import datetime
-import re
 
 # Create your views here.
 
@@ -75,7 +71,12 @@ def cemetery(request):
             layers = str(lot.category.max_layers)
             section = lot.section.name
 
-            string += ("{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+ polygon + "]]}, 'properties': {'id_lot': " + pkl +" , 'section': '" + section + "' , 'status': '" + status + "' , 'category': '"+ category + "', 'price': '" + price + "', 'layers': '" + layers + "'")
+            string += (
+                "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["
+                + polygon + "]]}, 'properties': {'id_lot': " + pkl +
+                " , 'section': '" + section + "' , 'status': '" + status +
+                "' , 'category': '" + category + "', 'price': '" + price +
+                "', 'layers': '" + layers + "'")
 
             graveFilter = Grave.objects.filter(lot__id=pkl)
 
@@ -94,11 +95,11 @@ def cemetery(request):
                         "%Y-%m-%d").strftime("%#b %#d, %Y")
 
                     string += (", 'id_deceased_" + str(ctr) + "': " + pkd +
-                        ", 'name_" + str(ctr) + "': '" + fname + " " +
-                        lname + "', 'birth_" + str(ctr) + "': '" +
-                        birth + "', 'death_" + str(ctr) + "': '" +
-                        death + "'")
-                                
+                               ", 'name_" + str(ctr) + "': '" + fname + " " +
+                               lname + "', 'birth_" + str(ctr) + "': '" +
+                               birth + "', 'death_" + str(ctr) + "': '" +
+                               death + "'")
+
                     ctr += 1
                 string += "}},"
             else:
@@ -124,7 +125,9 @@ def cemetery(request):
             section = section.name
 
             string1 += (
-                "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["+ polygon + "]]}, 'properties': {'id': '" + pk +"','sections': '" + section + "'}},")
+                "{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [["
+                + polygon + "]]}, 'properties': {'id': '" + pk +
+                "','sections': '" + section + "'}},")
 
         dict1 = {
             "type": "FeatureCollection",
@@ -202,6 +205,7 @@ def search(request):
             },
         )
 
+
 def searchlot(request):
     if request.method == "POST":
 
@@ -211,7 +215,11 @@ def searchlot(request):
         layers = request.POST.get("layers")
         cemetery = request.POST.get("cemetery")
 
-        filtered = (Q(category__name__iexact=category) | Q(section__name__iexact=section) | Q(status__name__iexact=status) | Q(category__max_layers__iexact=layers) | Q(section__cemetery__name__iexact=cemetery))
+        filtered = (Q(category__name__iexact=category)
+                    | Q(section__name__iexact=section)
+                    | Q(status__name__iexact=status)
+                    | Q(category__max_layers__iexact=layers)
+                    | Q(section__cemetery__name__iexact=cemetery))
 
         return render(
             request,
@@ -238,26 +246,36 @@ def searchlot(request):
             },
         )
 
+
 def information(request):
 
     if request.method == "POST":
-        
+
         strip = geoloc(Lot.objects.filter(pk=request.POST.get("pk")))
 
-        return render(request,'cmis/information.html', {
-            "grave": Grave.objects.filter(lot__id=request.POST.get("pk")),
-            "lot": Lot.objects.filter(pk=request.POST.get("pk")),
-            "coords": strip,
-        })
+        return render(
+            request,
+            "cmis/information.html",
+            {
+                "grave": Grave.objects.filter(lot__id=request.POST.get("pk")),
+                "lot": Lot.objects.filter(pk=request.POST.get("pk")),
+                "coords": strip,
+            },
+        )
 
     else:
-        strip = geoloc(Lot.objects.filter(pk=request.GET['q']))
-        
-        return render(request,'cmis/information.html', {
-            "grave": Grave.objects.filter(lot__id=request.GET['q']),
-            "lot": Lot.objects.filter(pk=request.GET['q']),
-            "coords": strip,
-        })
+        strip = geoloc(Lot.objects.filter(pk=request.GET["q"]))
+
+        return render(
+            request,
+            "cmis/information.html",
+            {
+                "grave": Grave.objects.filter(lot__id=request.GET["q"]),
+                "lot": Lot.objects.filter(pk=request.GET["q"]),
+                "coords": strip,
+            },
+        )
+
 
 def geoloc(filter):
 
@@ -267,9 +285,8 @@ def geoloc(filter):
 
         strip = re.sub(r"[\([{})\]]", "", str(grave.polygon)).split(",", 2)
         str(strip.pop(2))
-        strip = strip[1]+","+strip[0]
-        strip = ''.join(strip.split())
+        strip = strip[1] + "," + strip[0]
+        strip = "".join(strip.split())
         print(strip)
 
     return strip
-    
