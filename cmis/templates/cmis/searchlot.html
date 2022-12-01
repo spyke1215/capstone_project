@@ -9,7 +9,7 @@
 {% block masthead %}
 <div class="masthead">
     <!--Graves-->
-    <div class="container text-white d-flex align-items-center justify-content-center" style="padding-top: 100px">
+    <div class="container text-white d-flex align-items-center justify-content-center" style="padding-top: 125px">
         <form method="POST" class="bg-dark rounded row g-4 p-3 pb-5" id="graves">{% csrf_token %}
             <h3 class="font-weight-bold col-md-9">Search Lot Information</h3><a class="btn btn-secondary col-md-3" href="{% url 'search' %}">Search for Graves</a>
             <div class="col-6">
@@ -65,11 +65,11 @@
             </thead>
             <tbody class="table-group-divider">
                 {% for lot in lot %}
-                <form method="POST" id="form[{{ lot.id }}]" action="{% url 'deceased' %}"> {% csrf_token %}
+                <form method="POST" id="form[{{ lot.id }}]" action="{% url 'information' %}"> {% csrf_token %}
                     <tr onclick="form[{{ lot.id }}].submit();" style="cursor: pointer;">
                         <input type="hidden" name="pk" value="{{ lot.id }}"/>
                         <th scope="row">{{ lot.id }}</th>
-                        <td>{{ lot.category.name}}</td>
+                        <td>{{ lot.category.name }}</td>
                         <td>{{ lot.section.name }}</td>
                         <td>{{ lot.status.name }}</td>
                         <td class="mobile">{{ lot.category.max_layers }}</td>
@@ -82,7 +82,7 @@
 </div>
 
 <!-- Footer-->
-<footer class="footer bg-black small text-center text-white-50">
+<footer class="footer small text-center text-white-50">
     <div class="container px-4 px-lg-5">Copyright &copy; Sepulcrum 2022</div>
 </footer>
 
