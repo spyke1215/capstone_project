@@ -29,7 +29,7 @@ class LotAdmin(admin.ModelAdmin):
     list_display = ("id", "category", "section", "status")
     list_filter = ("category", "section", "status")
     search_fields = ("id", "category", "section", "status")
-    ordering = ("id",)
+    ordering = ("id", )
 
 
 @admin.register(Category)
@@ -44,7 +44,7 @@ class StatusAdmin(admin.ModelAdmin):
         "id",
         "name",
     )
-    search_fields = ("name",)
+    search_fields = ("name", )
 
 
 @admin.register(Section)
