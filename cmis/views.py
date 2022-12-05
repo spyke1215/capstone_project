@@ -110,7 +110,6 @@ def cemetery(request):
             "features": ast.literal_eval(string)
         }
         lot = json.dumps(dict)
-        print(lot)
     else:
         lot = "null"
 

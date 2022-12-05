@@ -146,6 +146,16 @@
                     'line-width': 3
                 }
             });
+
+            map.addLayer({
+                'id': 'graveLabels',
+                'type': 'symbol',
+                'source': 'graves',
+                'layout': {
+                    'text-field':['concat', ['get', 'section'], ['get', 'id_lot']],
+                    'text-justify': 'center'
+                }
+            });
         }
 
         function addSections() {
@@ -169,16 +179,28 @@
                     ]
                 }
             });
-        }
+
+            map.addLayer({
+                'id': 'sectionLabels',
+                'type': 'symbol',
+                'source': 'section',
+                'layout': {
+                    'text-field':['concat', 'Section ',['get', 'sections']],
+                    'text-justify': 'center',
+                }
+            });
+        };
 
         var layerIDs = [];
 
         function hideSections() {
             map.setLayoutProperty('sectionPolygon', 'visibility', 'none');
+            map.setLayoutProperty('sectionLabels', 'visibility', 'none');
         }
 
         function showSections() {
             map.setLayoutProperty('sectionPolygon', 'visibility', 'visible');
+            map.setLayoutProperty('sectionLabels', 'visibility', 'visible');
         }
 
         function hideGraves() {
@@ -187,6 +209,7 @@
                 map.setLayoutProperty(layer, 'visibility', 'none');
             }
             map.setLayoutProperty('graveOutline', 'visibility', 'none');
+            map.setLayoutProperty('graveLabels', 'visibility', 'none');
             filterGroup.style.display = "none";
         }
 
@@ -196,6 +219,7 @@
                 map.setLayoutProperty(layer, 'visibility', 'visible');
             }
             map.setLayoutProperty('graveOutline', 'visibility', 'visible');
+            map.setLayoutProperty('graveLabels', 'visibility', 'visible');
             filterGroup.style.display = "block";
         }
 
@@ -328,7 +352,9 @@
                                 'Lot: '+ section + id +' ('+ status +')' +
                                 '<br> Name: ' + name +
                                 '<br> Birth: ' + birth +
-                                '<br> Death: ' + death + '</p></strong></h6>';
+                                '<br> Death: ' + death + 
+                                '<br> Category: ' + category + 
+                                '</p></strong></h6>';
                         }
                     }
                     else if (layerID == 'poi-Reserved'){
@@ -342,9 +368,10 @@
                     else if (layerID == 'poi-Vacant'){
                     var html = '<h6 class="text-center"><strong><p>' +
                         'Lot: '+ section + id +' ('+ status +')' +
-                        '<br> Category: '+ category +
                         '<br> Price: ₱'+ price +
-                        '<br> Maximum layers: '+ layers + '</p></strong></h6>';
+                        '<br> Maximum layers: '+ layers + 
+                        '<br> Category: '+ category +
+                        '</p></strong></h6>';
                     }
                 }
                 else{
