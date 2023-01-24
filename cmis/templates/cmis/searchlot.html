@@ -14,20 +14,29 @@
             <h3 class="font-weight-bold col-md-9">Search Lot Information</h3><a class="btn btn-secondary col-md-3" href="{% url 'search' %}">Search for Graves</a>
             <div class="col-6">
                 <label for="inputCemetery" class="form-label">Cemetery</label>
-                <select id="inputCemetery" class="form-select" name="cemetery">
-                    <option selected></option>
-                    {% for cemetery in cemetery %}
-                        <option value="{{ cemetery.name }}">{{ cemetery.name }}</option>
-                    {% endfor %}
+                <select id="inputCemetery" class="form-select" name="cemetery" onchange="this.form.submit()">
+                    {% if selectedCemetery == NULL %}
+                        <option hidden></option>
+                    {% else %}
+                        <option selected hidden>{{ selectedCemetery }}</option>
+                    {% endif %}
+                        {% for cemetery in cemetery %}
+                            <option value="{{ cemetery.name }}">{{ cemetery.name }}</option>
+                        {% endfor %}
                 </select>
             </div>
             <div class="col-6">
                 <label for="inputSection" class="form-label">Section</label>
-                <select id="inputSection" class="form-select" name="section">
+                <select id="inputSection" class="form-select" name="section" onchange="this.form.submit()">
                     <option selected></option>
-                    {% for section in section %}
-                        <option value="{{ section.name }}">{{ section.name }}</option>
-                    {% endfor %}
+                    {% if selectedSection == NULL %}
+                        <option hidden></option>
+                    {% else %}
+                        <option selected hidden>{{ selectedSection }}</option>
+                        {% for section in section %}
+                            <option value="{{ section.name }}">{{ section.name }}</option>
+                        {% endfor %}
+                    {% endif %}
                 </select>
             </div>
             <div class="col-md-5">
@@ -78,6 +87,33 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <div class="container text-white d-flex align-items-center justify-content-center">
+        {% if lot.has_other_pages %}
+        <nav aria-label="Pagination">
+            <ul class="pagination">
+                {% if lot.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ lot.previous_page_number }}">Previous</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                {% endif %}
+
+                {% for i in lot.paginator.page_range %}
+                    {% if lot.number == i %}
+                        <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+                    {% elif i > lot.number|add:'-5' and i < lot.number|add:'5' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if lot.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ lot.next_page_number }}">Next</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </div>
 

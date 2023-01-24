@@ -9,11 +9,24 @@
     <div class="container align-items-center justify-content-center" style="padding-top: 100px">
         <div class="bg-dark border rounded border-0 border-dark overflow-hidden">
             <div class="text-white p-4 p-md-5">
-                <h2 class="fw-bold fs-1 text-white mb-3 d-inline">Cemetery Reports</h2>&nbsp;<p class="d-inline">(sacred heart cemetery)</p>
+                <h2 class="fw-bold fs-1 mb-3 col-md-8">Cemetery Reports</h2>
+                <form class="col-md-2" method="POST"> {% csrf_token %}
+                    <select id="inputCemetery" class="form-select" name="cemetery" onchange="this.form.submit()">
+                        {% if selectedCemetery == NULL %}
+                        <option selected hidden>Select Cemetery</option>
+                        {% else %}
+                        <option selected hidden>{{ selectedCemetery}}</option>
+                        {% endif %}
+
+                            {% for cemetery in cemetery %}
+                            <option value="{{ cemetery.name }}">{{ cemetery.name }}</option>
+                            {% endfor %}
+                    </select>
+                </form>
                 <ul class="p-3">
-                    <p class="fs-4">Total graves - {{ total_deceased }}</p>
-                    <p class="fs-4">Total sections - {{ sections }}</p>
-                    <p class="fs-4">Total lots - {{ total_lots }}</p>
+                    <p class="fs-4">Graves - {{ total_deceased }}</p>
+                    <p class="fs-4">Sections - {{ sections }}</p>
+                    <p class="fs-4">Lots - {{ total_lots }}</p>
                     <ul>
                         <li>Unavailable - {{ unavailable_lots }}</li>
                         <li>Reserved - {{ reserved_lots }}</li>

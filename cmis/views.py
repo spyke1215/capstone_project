@@ -3,7 +3,7 @@ import datetime
 import json
 import re
 from hashlib import blake2b
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.shortcuts import render
 
@@ -18,35 +18,45 @@ def menu(request):
 
 def report(request):
 
-    lot = Lot.objects.all()
+    if request.method == "GET":
 
-    sections = Section.objects.filter(cemetery__name="Sacred Heart").count()
-    total_deceased = Deceased.objects.all().count()
-    total_lots = lot.count()
-    unavailable_lots = lot.filter(status__name="Unavailable").count()
-    available_lots = lot.filter(status__name="Vacant").count()
-    reserved_lots = lot.filter(status__name="Reserved").count()
-    occupied_lots = lot.filter(status__name="Occupied").count()
-    columbarium = lot.filter(category__name="Columbarium").count()
-    lawn = lot.filter(category__name="Lawn lot").count()
-    mausoleum = lot.filter(category__name="Mausoleum").count()
+        return render(request, "cmis/report.html",{
+            "cemetery": Cemetery.objects.all()
+        })
 
-    return render(
-        request,
-        "cmis/report.html",
-        {
-            "total_deceased": total_deceased,
-            "total_lots": total_lots,
-            "unavailable_lots": unavailable_lots,
-            "vacant_lots": available_lots,
-            "reserved_lots": reserved_lots,
-            "occupied_lots": occupied_lots,
-            "sections": sections,
-            "columbarium": columbarium,
-            "lawn": lawn,
-            "mausoleum": mausoleum,
-        },
-    )
+
+    if request.method == "POST":
+        selected = request.POST.get("cemetery")
+        lot = Lot.objects.filter(section__cemetery__name=selected)
+        sections = Section.objects.filter(cemetery__name=selected).count()
+        total_deceased = Grave.objects.filter(lot__section__cemetery__name=selected).count()
+        total_lots = lot.count()
+        unavailable_lots = lot.filter(status__name="Unavailable").count()
+        available_lots = lot.filter(status__name="Vacant").count()
+        reserved_lots = lot.filter(status__name="Reserved").count()
+        occupied_lots = lot.filter(status__name="Occupied").count()
+        columbarium = lot.filter(category__name="Columbarium").count()
+        lawn = lot.filter(category__name="Lawn lot").count()
+        mausoleum = lot.filter(category__name="Mausoleum").count()
+
+        return render(
+            request,
+            "cmis/report.html",
+            {
+                "total_deceased": total_deceased,
+                "total_lots": total_lots,
+                "unavailable_lots": unavailable_lots,
+                "vacant_lots": available_lots,
+                "reserved_lots": reserved_lots,
+                "occupied_lots": occupied_lots,
+                "sections": sections,
+                "columbarium": columbarium,
+                "lawn": lawn,
+                "mausoleum": mausoleum,
+                "cemetery": Cemetery.objects.all(),
+                "selectedCemetery": selected
+            },
+        )
 
 
 def cemetery(request):
@@ -167,11 +177,19 @@ def search(request):
         section = request.POST.get("section")
         cemetery = request.POST.get("cemetery")
 
-        names = (Q(deceased__first_name__iexact=first)
-                 | Q(deceased__middle_name__iexact=middle)
-                 | Q(deceased__last_name__iexact=last)
-                 | Q(lot__section__name__iexact=section)
-                 | Q(lot__section__cemetery__name__iexact=cemetery))
+        if section == "":
+            names = (Q(lot__section__cemetery__name__iexact=cemetery)
+                    | Q(lot__section__name__iexact=section)
+                    | Q(deceased__first_name__iexact=first)
+                    | Q(deceased__middle_name__iexact=middle)
+                    | Q(deceased__last_name__iexact=last)
+                    )
+        else: 
+            names = (Q(lot__section__name__iexact=section)
+                    | Q(deceased__first_name__iexact=first)
+                    | Q(deceased__middle_name__iexact=middle)
+                    | Q(deceased__last_name__iexact=last)
+                    )
 
         if birth == "" and death == "":
             filtered = names
@@ -184,22 +202,51 @@ def search(request):
                         | Q(deceased__birth_date__year=birth)
                         | Q(deceased__death_date__year=death))
 
+        graveList = Grave.objects.filter(filtered)
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(graveList, 100)
+        try:
+            grave = paginator.page(page)
+        except PageNotAnInteger:
+            grave = paginator.page(1)
+        except EmptyPage:
+            grave = paginator.page(paginator.num_pages)
+
         return render(
             request,
             "cmis/search.html",
             {
-                "grave": Grave.objects.filter(filtered),
+                "grave": grave,
                 "cemetery": Cemetery.objects.all(),
-                "section": Section.objects.all(),
+                "section": Section.objects.filter(cemetery__name=cemetery),
+                "selectedFirst": first,
+                "selectedMiddle": middle,
+                "selectedLast": last,
+                "selectedBirth": birth,
+                "selectedDeath": death,
+                "selectedSection": section,
+                "selectedCemetery": cemetery,
             },
         )
 
     else:
+        graveList = Grave.objects.all()
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(graveList, 100)
+        try:
+            grave = paginator.page(page)
+        except PageNotAnInteger:
+            grave = paginator.page(1)
+        except EmptyPage:
+            grave = paginator.page(paginator.num_pages)
+
         return render(
             request,
             "cmis/search.html",
             {
-                "grave": Grave.objects.all(),
+                "grave": grave,
                 "cemetery": Cemetery.objects.all(),
                 "section": Section.objects.all(),
             },
@@ -208,37 +255,70 @@ def search(request):
 
 def searchlot(request):
     if request.method == "POST":
-
+        
         category = request.POST.get("category")
         section = request.POST.get("section")
         status = request.POST.get("status")
         layers = request.POST.get("layers")
         cemetery = request.POST.get("cemetery")
 
-        filtered = (Q(category__name__iexact=category)
-                    | Q(section__name__iexact=section)
-                    | Q(status__name__iexact=status)
-                    | Q(category__max_layers__iexact=layers)
-                    | Q(section__cemetery__name__iexact=cemetery))
+        if section == "":
+            filtered = (Q(category__name__iexact=category)
+                        | Q(section__name__iexact=section)
+                        | Q(status__name__iexact=status)
+                        | Q(category__max_layers__iexact=layers)
+                        | Q(section__cemetery__name__iexact=cemetery))
+        else:
+            filtered = (Q(category__name__iexact=category)
+                        | Q(section__name__iexact=section)
+                        | Q(status__name__iexact=status)
+                        | Q(category__max_layers__iexact=layers))
+
+        lotList = Lot.objects.filter(filtered)
+        page = request.POST.get('page', 1)
+
+        paginator = Paginator(lotList, 25)
+        try:
+            lot = paginator.page(page)
+        except PageNotAnInteger:
+            lot = paginator.page(1)
+        except EmptyPage:
+            lot = paginator.page(paginator.num_pages)
 
         return render(
             request,
             "cmis/searchlot.html",
             {
-                "lot": Lot.objects.filter(filtered),
+                "lot": lot,
                 "cemetery": Cemetery.objects.all(),
-                "section": Section.objects.all(),
+                "section":  Section.objects.all(),
                 "category": Category.objects.all(),
                 "status": Status.objects.all(),
+                "selectedCategory": category,
+                "selectedSection": section,
+                "selectedStatus": status,
+                "selectedLayers": layers,
+                "selectedCemetery": cemetery,
             },
         )
 
     else:
+        lotList = Lot.objects.all()
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(lotList, 100)
+        try:
+            lot = paginator.page(page)
+        except PageNotAnInteger:
+            lot = paginator.page(1)
+        except EmptyPage:
+            lot = paginator.page(paginator.num_pages)
+
         return render(
             request,
             "cmis/searchlot.html",
             {
-                "lot": Lot.objects.all(),
+                "lot": lot,
                 "cemetery": Cemetery.objects.all(),
                 "section": Section.objects.all(),
                 "category": Category.objects.all(),
