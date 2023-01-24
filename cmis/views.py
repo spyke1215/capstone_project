@@ -185,7 +185,8 @@ def search(request):
                     | Q(deceased__last_name__iexact=last)
                     )
         else: 
-            names = (Q(lot__section__name__iexact=section)
+            names = (Q(lot__section__cemetery__name__iexact=cemetery)
+                    & Q(lot__section__name__iexact=section)
                     | Q(deceased__first_name__iexact=first)
                     | Q(deceased__middle_name__iexact=middle)
                     | Q(deceased__last_name__iexact=last)
@@ -259,20 +260,23 @@ def searchlot(request):
         category = request.POST.get("category")
         section = request.POST.get("section")
         status = request.POST.get("status")
-        layers = request.POST.get("layers")
         cemetery = request.POST.get("cemetery")
 
-        if section == "":
-            filtered = (Q(category__name__iexact=category)
-                        | Q(section__name__iexact=section)
-                        | Q(status__name__iexact=status)
-                        | Q(category__max_layers__iexact=layers)
-                        | Q(section__cemetery__name__iexact=cemetery))
-        else:
-            filtered = (Q(category__name__iexact=category)
-                        | Q(section__name__iexact=section)
-                        | Q(status__name__iexact=status)
-                        | Q(category__max_layers__iexact=layers))
+        if section == "" and status == "" and category == "":
+            filtered = Q(section__cemetery__name__iexact=cemetery)
+                        
+        elif category == "" and status == "": 
+            filtered = (Q(section__cemetery__name__iexact=cemetery)
+                        & Q(section__name__iexact=section))
+        elif status == "":
+            filtered = (Q(section__cemetery__name__iexact=cemetery)
+                        & Q(section__name__iexact=section)
+                        & Q(category__name__iexact=category))
+        else: 
+            filtered = (Q(section__cemetery__name__iexact=cemetery)
+                        & Q(section__name__iexact=section)
+                        & Q(category__name__iexact=category)
+                        & Q(status__name__iexact=status))
 
         lotList = Lot.objects.filter(filtered)
         page = request.POST.get('page', 1)
@@ -291,14 +295,14 @@ def searchlot(request):
             {
                 "lot": lot,
                 "cemetery": Cemetery.objects.all(),
-                "section":  Section.objects.all(),
+                "section":  Section.objects.filter(cemetery__name=cemetery),
                 "category": Category.objects.all(),
                 "status": Status.objects.all(),
                 "selectedCategory": category,
                 "selectedSection": section,
                 "selectedStatus": status,
-                "selectedLayers": layers,
                 "selectedCemetery": cemetery,
+                
             },
         )
 

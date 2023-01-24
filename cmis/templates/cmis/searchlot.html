@@ -28,7 +28,6 @@
             <div class="col-6">
                 <label for="inputSection" class="form-label">Section</label>
                 <select id="inputSection" class="form-select" name="section" onchange="this.form.submit()">
-                    <option selected></option>
                     {% if selectedSection == NULL %}
                         <option hidden></option>
                     {% else %}
@@ -39,25 +38,32 @@
                     {% endif %}
                 </select>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <label for="inputCategory" class="form-label">Category</label>
-                <select id="inputCategory" class="form-select" name="category">
-                    <option selected></option>
-                    {% for category in category %}
-                        <option value="{{ category.name }}">{{ category.name }}</option>
-                    {% endfor %}
+                <select id="inputCategory" class="form-select" name="category" onchange="this.form.submit()">
+                    {% if selectedCategory == NULL %}
+                        <option hidden></option>
+                    {% else %}
+                        <option selected hidden>{{ selectedCategory }}</option>
+                        {% for category in category %}
+                            <option value="{{ category.name }}">{{ category.name }}</option>
+                        {% endfor %}
+                    {% endif %}
                 </select>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <label for="inputStatus" class="form-label">Status</label>
-                <select id="inputStatus" class="form-select" name="status">
-                    <option selected></option>
-                    {% for status in status %}
-                        <option value="{{ status.name }}">{{ status.name }}</option>
-                    {% endfor %}
+                <select id="inputStatus" class="form-select" name="status" onchange="this.form.submit()">
+                    {% if selectedStatus == NULL %}
+                        <option hidden></option>
+                    {% else %}
+                        <option selected hidden>{{ selectedStatus }}</option>
+                        {% for status in status %}
+                            <option value="{{ status.name }}">{{ status.name }}</option>
+                        {% endfor %}
+                    {% endif %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary col-md-2">Search&nbsp;<i class="fas fa-search"></i></button>
         </form>
     </div>
     <div class="container text-white d-flex align-items-center justify-content-center" style="padding-top: 50px">
