@@ -6,58 +6,11 @@ from hashlib import blake2b
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.shortcuts import render
-
 from cmis.models import *
-
-# Create your views here.
 
 
 def menu(request):
     return render(request, "cmis/menu.html")
-
-
-def report(request):
-
-    if request.method == "GET":
-
-        return render(request, "cmis/report.html",{
-            "cemetery": Cemetery.objects.all()
-        })
-
-
-    if request.method == "POST":
-        selected = request.POST.get("cemetery")
-        lot = Lot.objects.filter(section__cemetery__name=selected)
-        sections = Section.objects.filter(cemetery__name=selected).count()
-        total_deceased = Grave.objects.filter(lot__section__cemetery__name=selected).count()
-        total_lots = lot.count()
-        unavailable_lots = lot.filter(status__name="Unavailable").count()
-        available_lots = lot.filter(status__name="Vacant").count()
-        reserved_lots = lot.filter(status__name="Reserved").count()
-        occupied_lots = lot.filter(status__name="Occupied").count()
-        columbarium = lot.filter(category__name="Columbarium").count()
-        lawn = lot.filter(category__name="Lawn lot").count()
-        mausoleum = lot.filter(category__name="Mausoleum").count()
-
-        return render(
-            request,
-            "cmis/report.html",
-            {
-                "total_deceased": total_deceased,
-                "total_lots": total_lots,
-                "unavailable_lots": unavailable_lots,
-                "vacant_lots": available_lots,
-                "reserved_lots": reserved_lots,
-                "occupied_lots": occupied_lots,
-                "sections": sections,
-                "columbarium": columbarium,
-                "lawn": lawn,
-                "mausoleum": mausoleum,
-                "cemetery": Cemetery.objects.all(),
-                "selectedCemetery": selected
-            },
-        )
-
 
 def cemetery(request):
     lot = ""
@@ -374,3 +327,45 @@ def geoloc(filter):
         print(strip)
 
     return strip
+
+#def report(request):
+#
+#    if request.method == "GET":
+#
+#        return render(request, "cmis/report.html",{
+#            "cemetery": Cemetery.objects.all()
+#        })
+#
+#
+#    if request.method == "POST":
+#        selected = request.POST.get("cemetery")
+#        lot = Lot.objects.filter(section__cemetery__name=selected)
+#        sections = Section.objects.filter(cemetery__name=selected).count()
+#        total_deceased = Grave.objects.filter(lot__section__cemetery__name=selected).count()
+#        total_lots = lot.count()
+#        unavailable_lots = lot.filter(status__name="Unavailable").count()
+#        available_lots = lot.filter(status__name="Vacant").count()
+#        reserved_lots = lot.filter(status__name="Reserved").count()
+#        occupied_lots = lot.filter(status__name="Occupied").count()
+#        columbarium = lot.filter(category__name="Columbarium").count()
+#        lawn = lot.filter(category__name="Lawn lot").count()
+#        mausoleum = lot.filter(category__name="Mausoleum").count()
+#
+#        return render(
+#            request,
+#            "cmis/report.html",
+#            {
+#                "total_deceased": total_deceased,
+#                "total_lots": total_lots,
+#                "unavailable_lots": unavailable_lots,
+#                "vacant_lots": available_lots,
+#                "reserved_lots": reserved_lots,
+#                "occupied_lots": occupied_lots,
+#                "sections": sections,
+#                "columbarium": columbarium,
+#                "lawn": lawn,
+#                "mausoleum": mausoleum,
+#                "cemetery": Cemetery.objects.all(),
+#                "selectedCemetery": selected
+#            },
+#        )
