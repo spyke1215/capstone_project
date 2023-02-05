@@ -8,7 +8,6 @@ from django.db.models import Q
 from django.shortcuts import render
 from cmis.models import *
 
-
 def menu(request):
     return render(request, "cmis/menu.html")
 
@@ -118,7 +117,6 @@ def cemetery(request):
         },
     )
 
-
 def search(request):
     if request.method == "POST":
 
@@ -130,31 +128,63 @@ def search(request):
         section = request.POST.get("section")
         cemetery = request.POST.get("cemetery")
 
-        if section == "":
-            names = (Q(lot__section__cemetery__name__iexact=cemetery)
-                    | Q(lot__section__name__iexact=section)
-                    | Q(deceased__first_name__iexact=first)
-                    | Q(deceased__middle_name__iexact=middle)
-                    | Q(deceased__last_name__iexact=last)
-                    )
-        else: 
-            names = (Q(lot__section__cemetery__name__iexact=cemetery)
-                    & Q(lot__section__name__iexact=section)
-                    | Q(deceased__first_name__iexact=first)
-                    | Q(deceased__middle_name__iexact=middle)
-                    | Q(deceased__last_name__iexact=last)
-                    )
 
-        if birth == "" and death == "":
-            filtered = names
-        elif death == "":
-            filtered = names | Q(deceased__birth_date__year=birth)
-        elif birth == "":
-            filtered = names | Q(deceased__death_date__year=death)
+        if cemetery == "" and section == "":
+            test = Q()
+
+        elif cemetery == "":
+            test = Q(lot__section__name__iexact=section)
+            
+        elif section == "":
+            test = Q(lot__section__cemetery__name__iexact=cemetery)
+
         else:
-            filtered = (names
-                        | Q(deceased__birth_date__year=birth)
-                        | Q(deceased__death_date__year=death))
+            test = Q(lot__section__name__iexact=section) & Q(lot__section__cemetery__name__iexact=cemetery)
+
+
+        if first == "" and middle == "" and last == "":
+            names = Q()
+
+        elif middle == "" and last == "":
+
+            names = Q(deceased__first_name__iexact=first)
+
+        elif first == "" and middle == "":
+
+            names = Q(deceased__last_name__iexact=last)
+
+        elif first == "" and last == "":
+                
+            names = Q(deceased__middle_name__iexact=middle)
+
+        elif first == "":
+                
+            names = Q(deceased__middle_name__iexact=middle) & Q(deceased__last_name__iexact=last)
+
+        elif middle == "":
+                    
+            names = Q(deceased__first_name__iexact=first) & Q(deceased__last_name__iexact=last)
+        
+        elif last == "":
+
+            names = Q(deceased__first_name__iexact=first) & Q(deceased__middle_name__iexact=middle)
+
+        else:
+            names = Q(deceased__first_name__iexact=first) & Q(deceased__middle_name__iexact=middle) & Q(deceased__last_name__iexact=last)
+        
+        if birth == "" and death == "":
+            filtered = names & test
+        elif death == "":
+            filtered = names & test & Q(deceased__birth_date__year=birth)
+        elif birth == "":
+            filtered = names & test & Q(deceased__death_date__year=death)
+        else:
+            filtered = (names & test
+                        & Q(deceased__birth_date__year=birth)
+                        & Q(deceased__death_date__year=death))
+
+        print(filtered)
+        
 
         graveList = Grave.objects.filter(filtered)
         page = request.GET.get('page', 1)
@@ -205,7 +235,6 @@ def search(request):
                 "section": Section.objects.all(),
             },
         )
-
 
 def searchlot(request):
     if request.method == "POST":
@@ -283,36 +312,34 @@ def searchlot(request):
             },
         )
 
-
 def information(request):
 
     if request.method == "POST":
 
-        strip = geoloc(Lot.objects.filter(pk=request.POST.get("pk")))
+        strip = geoloc(Lot.objects.filter(pk=request.POST.get("pk", False)))
 
         return render(
             request,
             "cmis/information.html",
             {
-                "grave": Grave.objects.filter(lot__id=request.POST.get("pk")),
-                "lot": Lot.objects.filter(pk=request.POST.get("pk")),
+                "grave": Grave.objects.filter(lot__id=request.POST.get("pk", False)),
+                "lot": Lot.objects.filter(pk=request.POST.get("pk", False)),
                 "coords": strip,
             },
         )
 
     else:
-        strip = geoloc(Lot.objects.filter(pk=request.GET["q"]))
+        strip = geoloc(Lot.objects.filter(pk=request.GET["q", False]))
 
         return render(
             request,
             "cmis/information.html",
             {
-                "grave": Grave.objects.filter(lot__id=request.GET["q"]),
-                "lot": Lot.objects.filter(pk=request.GET["q"]),
+                "grave": Grave.objects.filter(lot__id=request.GET["q", False]),
+                "lot": Lot.objects.filter(pk=request.GET["q", False]),
                 "coords": strip,
             },
         )
-
 
 def geoloc(filter):
 
